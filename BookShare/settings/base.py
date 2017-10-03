@@ -25,7 +25,12 @@ ALLOWED_HOSTS = []
 # Application definition
 
 INSTALLED_APPS = [
+    # my app
     'page',
+    'account',
+    # third party
+    'widget_tweaks',
+    # core
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
