@@ -29,14 +29,14 @@
                 <a class="dropdown-item" href="#">我的帳號</a>
                 <a class="dropdown-item" href="#">更換密碼</a>
                 <div class="dropdown-divider"></div>
-                <a class="dropdown-item" href="#">登出</a>
+                <a class="dropdown-item" href="{% url 'account_logout' %}">登出</a>
               </div>
             </li>
           </ul>
         {% else %}
           <form class="form-inline ml-auto">
-            <a href="#" class="btn btn-outline-secondary">登入</a>
-            <a href="{% url 'account_signup'%}" class="btn btn-primary ml-2">註冊</a>
+            <a href="{% url 'account_login' %}" class="btn btn-outline-secondary">登入</a>
+            <a href="{% url 'account_signup' %}" class="btn btn-primary ml-2">註冊</a>
           </form>
         {% endif %}
         </div>

@@ -109,3 +109,10 @@ USE_TZ = True
 STATIC_URL = '/static/'
 
 STATIC_ROOT = 'static/'
+
+# auth view redirect url
+LOGOUT_REDIRECT_URL = 'page_home'
+LOGIN_REDIRECT_URL = 'page_home'
+
+# for user not logged in
+LOGIN_URL = 'account_login'
