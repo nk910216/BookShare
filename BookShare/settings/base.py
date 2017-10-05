@@ -113,7 +113,7 @@ STATIC_ROOT = 'static/'
 
 # auth view redirect url
 LOGOUT_REDIRECT_URL = 'page_home'
-LOGIN_REDIRECT_URL = 'page_home'
+LOGIN_REDIRECT_URL = 'account_mypage'
 
 # for user not logged in
 LOGIN_URL = 'account_login'

@@ -10,7 +10,7 @@ class BookItem(models.Model):
     description = models.CharField(max_length=512)
     created_at = models.DateTimeField(auto_now_add=True)
 
-    owner = models.ForeignKey(User, related_name='book_item')
+    owner = models.ForeignKey(User, related_name='book_items')
 
     def __str__(self):
         return self.title

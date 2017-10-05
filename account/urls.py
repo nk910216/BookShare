@@ -1,7 +1,7 @@
 from django.conf.urls import url
 from django.contrib.auth import views as auth_view
 
-from .views import signup
+from .views import signup, mypage, mybooks
 
 urlpatterns = [
     url(r'^signup/$', signup, name='account_signup'), # for sign up
@@ -12,5 +12,8 @@ urlpatterns = [
         auth_view.PasswordChangeView.as_view(template_name='password_change.html'),
         name='account_password_change'),
     url(r'^password/done/$', auth_view.PasswordChangeDoneView.as_view(
-            template_name='password_change_done.html'), name='password_change_done')
+            template_name='password_change_done.html'), name='password_change_done'),
+    # mypage
+    url(r'^mypage/$', mypage, name='account_mypage'),
+    url(r'^mybooks/$', mybooks, name='account_mybooks'),
 ]

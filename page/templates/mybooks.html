@@ -1,0 +1,49 @@
+{% extends 'base.html' %}
+
+{% block title %}mypage{% endblock%}
+
+{% block breadcrumb %}
+<li class="breadcrumb-item"><a href="{% url 'account_mypage' %}">我的主頁</a></li>
+<li class="breadcrumb-item active">我的書本</li>
+{% endblock %}
+
+{% block content %}
+<div class="card mb-4">
+  <div class="card-header text-white bg-dark py-2 px-3">新增</div>
+    <div class="card-body p-3">
+      <form method="post" class="mb-4">
+        {% csrf_token %}
+        {% include 'includes/form.html' %}
+        <button type="submit" class="btn btn-success">新增書籍</button>
+      </form>
+    </div>
+  </div>
+</div>
+
+<h1 align="center">我的書櫃</h1>
+
+<div class="container">
+  <div class="row justify-content-md-center">
+  {% for book in books %}
+    <!--Card-->
+    <div class="card mb-3" style="width: 100rem;">
+      <!--Card Header-->
+      <div class="card-header">
+          <span style="font-weight:bold; font-size:30px;">{{ book.title }}</span>  by {{ book.authors }}
+      </div>
+
+      <!--Card content-->
+      <div class="card-body">
+        <!--Title-->
+      
+        <!--Text-->
+        <p class="card-text">{{ book.description }}</p>
+        <a href="#" class="btn btn-primary">修改</a>
+        <a href="#" class="btn btn-danger">刪除</a>
+      </div>
+    </div>
+    <!--/.Card-->
+  {% endfor %}
+  </div>
+</div>
+</div>{% endblock %}

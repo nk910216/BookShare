@@ -1,0 +1,8 @@
+{% extends 'base.html' %}
+
+{% block title %}mypage{% endblock%}
+
+{% block breadcrumb %}
+<li class="breadcrumb-item active">我的主頁</li>
+<li class="breadcrumb-item"><a href="{% url 'account_mybooks' %}">我的書本</a></li>
+{% endblock %}
