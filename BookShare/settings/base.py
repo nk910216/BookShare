@@ -27,6 +27,7 @@ ALLOWED_HOSTS = []
 INSTALLED_APPS = [
     # my app
     'page',
+    'book',
     'account',
     # third party
     'widget_tweaks',
