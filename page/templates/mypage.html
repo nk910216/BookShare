@@ -6,3 +6,17 @@
 <li class="breadcrumb-item active">我的主頁</li>
 <li class="breadcrumb-item"><a href="{% url 'account_mybooks' %}">我的書本</a></li>
 {% endblock %}
+
+{% block content %}
+<div class="card mb-4">
+  <div class="card-header text-white bg-dark py-2 px-3">我的基本資料</div>
+    <div class="card-body p-3">
+        <form method="post" class="mb-4">
+            {% csrf_token %}
+            {% include 'includes/form.html' %}
+            <button type="submit" class="btn btn-success">更新資料</button>
+        </form>
+    </div>
+  </div>
+</div>
+{% endblock %}

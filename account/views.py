@@ -4,7 +4,7 @@ from django.contrib.auth.decorators import login_required
 
 from book.forms import NewBookItemForm
 
-from .forms import SignUpForm
+from .forms import SignUpForm, InfoUpdateForm
 # Create your views here.
 def signup(request):
     if request.method == 'POST':
@@ -19,9 +19,9 @@ def signup(request):
 
     return render(request, 'signup.html', {'form': form})
 
-@login_required
-def mypage(request):
-    return render(request, 'mypage.html')
+# @login_required
+# def mypage(request):
+#    return render(request, 'mypage.html')
 
 @login_required
 def mybooks(request):
@@ -39,3 +39,23 @@ def mybooks(request):
     books = request.user.book_items.all().order_by('-created_at')
 
     return render(request, 'mybooks.html', {'form': form, 'books': books})
+
+@login_required
+def mypage(request):
+    user = request.user
+    if request.method == 'POST':
+        form = InfoUpdateForm(request.POST)
+        if form.is_valid():
+            info = form.cleaned_data
+            user.first_name = info.get('first_name', '')
+            user.last_name = info.get('last_name', '')
+            user.email = info.get('email', '')
+            user.save()
+    else:
+        form = InfoUpdateForm(initial = {
+            'first_name': user.first_name,
+            'last_name': user.last_name,
+            'email': user.email
+            })
+    return render(request, 'mypage.html', {'form': form,})
+    

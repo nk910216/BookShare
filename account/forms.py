@@ -9,3 +9,10 @@ class SignUpForm(UserCreationForm):
         model = User
         fields = ('username', # 'first_name', 'last_name',
                   'email', 'password1', 'password2')
+
+class InfoUpdateForm(forms.Form):
+    last_name = forms.CharField(required=False, max_length=30,
+                                label='姓氏')
+    first_name = forms.CharField(required=False, max_length=30,
+                                 label='名字')
+    email = forms.EmailField(required=False, label='電子郵件')
