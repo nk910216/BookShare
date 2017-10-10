@@ -32,6 +32,9 @@ def mybooks(request):
             book_item = form.save(commit=False)
             book_item.owner = request.user
             book_item.save()
+            # add item's abstract book
+            book_item.check_abstract_book()
+            
             form = NewBookItemForm()
     else:
         form = NewBookItemForm()
