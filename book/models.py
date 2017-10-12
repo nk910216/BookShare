@@ -33,3 +33,11 @@ class BookItem(models.Model):
             b = Book(title=self.title, authors=self.authors)
             b.save()
         b.items.add(self)
+
+    def can_user_delete(self, user):
+        if self.owner == user:
+            return True
+        if user.has_perm('book.delete_bookitem'):
+            return True
+        return False
+        return False
