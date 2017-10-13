@@ -2,7 +2,7 @@ from django.shortcuts import render, redirect
 from django.contrib.auth import login as auth_login
 from django.contrib.auth.decorators import login_required
 
-from book.forms import NewBookItemForm
+from book.forms import NewBookItemForm, NewTartgetBookForm
 
 from .forms import SignUpForm, InfoUpdateForm
 # Create your views here.
@@ -42,6 +42,21 @@ def mybooks(request):
     books = request.user.book_items.all().order_by('-created_at')
 
     return render(request, 'mybooks.html', {'form': form, 'books': books})
+
+@login_required
+def mytargetbooks(request):
+    if request.method == 'POST':
+        form = NewTartgetBookForm(request.POST)
+        if form.is_valid():
+            book = form.save(commit=False)
+            book.add_user_with_book(request.user)
+            
+            form = NewTartgetBookForm()
+    else:
+        form = NewTartgetBookForm()
+    books = request.user.target_books.all()
+
+    return render(request, 'mytargetbook.html', {'form': form, 'books': books})
 
 @login_required
 def mypage(request):

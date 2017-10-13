@@ -1,14 +1,35 @@
 from django.db import models
 from django.contrib.auth.models import User
+from django.core.exceptions import MultipleObjectsReturned 
+from django.core.exceptions import ObjectDoesNotExist
 # Create your models here.
 
 class Book(models.Model):
     title = models.CharField(max_length=255)
     authors = models.CharField(max_length=512)
     # items - the items of this abstract book
+    targeted_by = models.ManyToManyField(User, related_name='target_books',
+                                         blank=True) 
 
     def __str__(self):
         return '%s by %s' % (self.title, self.authors)
+    
+    def add_user_with_book(self, user):
+        try:
+            print(self.title, self.authors)
+            b = Book.objects.get(title=self.title, authors__contains=self.authors)
+            print('already exist')
+            b.targeted_by.add(user)
+        except MultipleObjectsReturned:
+            b_list = Book.objects.filter(title=self.title, authors__contains=self.authors)
+            for b in b_list:
+                b.targeted_by.add(user)
+            print('multi books')
+        except ObjectDoesNotExist:
+            self.save()
+            self.targeted_by.add(user)
+            print('new')
+        
 
 # book item, simple desciption only.
 # Not a model for a unique book.
@@ -39,5 +60,4 @@ class BookItem(models.Model):
             return True
         if user.has_perm('book.delete_bookitem'):
             return True
-        return False
         return False

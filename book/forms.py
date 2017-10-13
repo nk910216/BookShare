@@ -1,6 +1,21 @@
 from django import forms
 
-from .models import BookItem
+from .models import BookItem, Book
+
+class NewTartgetBookForm(forms.ModelForm):
+    class Meta:
+        model = Book
+        fields = ['title', 'authors',]
+
+        labels = {
+            'title': ('書名'),
+            'authors': ('作者'),
+        }
+
+        error_messages = {
+            'title': {'max_length': ('字數超出限制')},
+            'authors': {'max_length': ('字數超出限制')},
+        }
 
 class NewBookItemForm(forms.ModelForm):
 

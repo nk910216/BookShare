@@ -1,12 +1,12 @@
 {% extends 'base.html' %}
 {% load static %}
 
-{% block title %}mypage{% endblock%}
+{% block title %}mypage{% endblock %}
 
 {% block breadcrumb %}
 <li class="breadcrumb-item"><a href="{% url 'account_mypage' %}">我的主頁</a></li>
-<li class="breadcrumb-item active">我的書本</li>
-<li class="breadcrumb-item"><a href="{% url 'account_mytargetbooks' %}">徵求書本</a></li>
+<li class="breadcrumb-item"><a href="{% url 'account_mybooks' %}">我的書本</a></li>
+<li class="breadcrumb-item active">徵求書本</li>
 {% endblock %}
 
 {% block content %}
@@ -16,13 +16,13 @@
       <form method="post" class="mb-4" id="create_book_form">
         {% csrf_token %}
         {% include 'includes/form.html' %}
-        <button type="submit" class="btn btn-success">新增書籍</button>
+        <button type="submit" class="btn btn-success">新增徵求</button>
       </form>
     </div>
   </div>
 </div>
 
-<h1 align="center">我的書櫃</h1>
+<h1 align="center">我的徵求書櫃</h1>
 
 <div class="container">
   <div class="row justify-content-md-center">
@@ -39,9 +39,12 @@
         <!--Title-->
       
         <!--Text-->
+        <div class="card-content">
+        </div>
         <p class="card-text">{{ book.description }}</p>
-        <button href="#" class="btn btn-primary">修改</button>
-        <button href="{% url 'bookitem_delete' book.pk %}" class="btn btn-danger btn-delete">刪除</button>
+        <button href="#" class="btn btn-primary btn-show">修改</button>
+        <button href="{% url 'targetbook_delete' book.pk %}" class="btn btn-danger btn-delete">刪除</button>
+
       </div>
     </div>
     <!--/.Card-->
@@ -60,5 +63,5 @@
 {% endblock %}
 
 {% block javascript %}
-  <script src="{% static 'js/mybooks.js' %}"></script>
+  <script src="{% static 'js/mytargetbooks.js' %}"></script>
 {% endblock %}

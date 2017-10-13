@@ -1,7 +1,7 @@
 from django.conf.urls import url
 from django.contrib.auth import views as auth_view
 
-from .views import signup, mypage, mybooks
+from .views import signup, mypage, mybooks, mytargetbooks
 
 urlpatterns = [
     url(r'^signup/$', signup, name='account_signup'), # for sign up
@@ -16,4 +16,5 @@ urlpatterns = [
     # mypage
     url(r'^mypage/$', mypage, name='account_mypage'),
     url(r'^mybooks/$', mybooks, name='account_mybooks'),
+    url(r'^mytargetbooks/$', mytargetbooks, name='account_mytargetbooks')
 ]

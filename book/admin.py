@@ -9,4 +9,4 @@ class BookItemAdmin(admin.ModelAdmin):
 @admin.register(Book)
 class BookAdmin(admin.ModelAdmin):
     list_display = ['title', 'authors',]
-    
+    filter_horizontal = ('targeted_by',)    
