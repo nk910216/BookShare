@@ -1,7 +1,10 @@
+from enum import Enum
+
 from django.db import models
 from django.contrib.auth.models import User
 from django.core.exceptions import MultipleObjectsReturned 
 from django.core.exceptions import ObjectDoesNotExist
+
 # Create your models here.
 
 class Book(models.Model):
@@ -61,3 +64,30 @@ class BookItem(models.Model):
         if user.has_perm('book.delete_bookitem'):
             return True
         return False
+
+# exchange
+class ExchangetStatus(Enum):
+    NO_STATUS=0
+    REQUEST_BY_SOURCE=1
+    TURNDOWN_BY_TARGET=2
+    REGRET_BY_SOURCE=3
+    ACCEPT_BY_TARGET=4
+    ITEM_IS_DELETED=5
+    # add below, do not change the string/number above
+
+class ExchangeItem(models.Model):
+    from_item = models.ManyToManyField(BookItem, related_name='exchange_source')
+    from_user = models.ForeignKey(User, related_name='exchange_source', null=True)
+    to_item = models.ManyToManyField(BookItem, related_name='exchange_target')
+    to_user = models.ForeignKey(User, related_name='exchange_target', null=True)
+    status = models.IntegerField(default=ExchangetStatus.NO_STATUS.value)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        from_name = 'Nouser'
+        if self.from_user:
+            from_name = self.from_user.username
+        to_name = 'Nouser'
+        if self.to_user:
+            to_name = self.to_user.username
+        return "from %s to %s" % (from_name, to_name)
