@@ -1,6 +1,29 @@
 from django import forms
 
-from .models import BookItem, Book
+from .models import BookItem, Book, ExchangeItem
+
+class ExchangeForm(forms.ModelForm):
+    from_item = forms.ModelMultipleChoiceField(queryset=BookItem.objects.all(),
+                widget=forms.CheckboxSelectMultiple())
+    to_item = forms.ModelMultipleChoiceField(queryset=BookItem.objects.all(),
+                widget=forms.CheckboxSelectMultiple())
+    
+    def __init__(self, *args, **kwargs):
+        user_from = kwargs.pop('user_from')
+        user_to = kwargs.pop('user_to')
+        super(ExchangeForm, self).__init__(*args, **kwargs)
+        
+        print('form : ', user_from)
+        print('to : ', user_to)
+        
+        self.fields['from_item'].queryset = user_from.book_items#BookItem.objects.filter(owner=user_from)
+        self.fields['to_item'].queryset = user_to.book_items#BookItem.objects.filter(owner=user_to)
+        self.fields['from_item'].label = '我想拿來交換的書'
+        self.fields['to_item'].label = '我想交換到的書'    
+    
+    class Meta:
+        model = ExchangeItem
+        fields = ('from_item', 'to_item',)
 
 class NewTartgetBookForm(forms.ModelForm):
     class Meta:
