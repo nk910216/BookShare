@@ -3,8 +3,11 @@ from django.http import HttpResponse, Http404, HttpResponseForbidden
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
 from django.views.decorators.http import require_http_methods
+from django.db.models import Q
 
-from .models import BookItem, Book, ExchangeItem
+from .models import BookItem, Book, ExchangeItem 
+from .models import ExchangeSourceStatus, ExchangeTargetStatus
+from .models import can_user_add_exchange, get_exchange_max_amount
 from .forms import ExchangeForm
 # Create your views here.
 @login_required
@@ -16,6 +19,16 @@ def bookitem_delete(request, pk):
         raise Http404
 
     if book_item.can_user_delete(request.user):
+
+        # should set related exchanges
+        for exchange in book_item.exchange_source.all():
+            # exchange.clear()
+            exchange.from_status = ExchangeSourceStatus.SOURCE_DELETE.value
+            exchange.save()
+        for exchange in book_item.exchange_target.all():
+            # exchange.clear()
+            exchange.to_status = ExchangeTargetStatus.TARGET_DELETE.value
+            exchange.save()
         book_item.delete()
         if request.is_ajax():
             return HttpResponse()
@@ -44,9 +57,38 @@ def targetbook_delete(request, pk):
 def post_exchange(request, username):
     from_user = request.user
     to_user = get_object_or_404(User, username=username)
+
+    if from_user == to_user:
+        return redirect('account_mypage')
+    
+    # decide if the user can add another exchange.
+    can_post = False
+    if can_user_add_exchange(from_user, to_user):
+        can_post = True
+
+    # query set
+    user_exchanges = from_user.exchange_source.filter(to_user=to_user, 
+                        from_status=ExchangeSourceStatus.SOURCE_REQUEST.value)
+    from_other_exchanges = from_user.exchange_target.filter(from_user=to_user,
+                            from_status=ExchangeSourceStatus.SOURCE_REQUEST.value)
+
+    return render(request, 'book_exchange_post.html', 
+                  {'to_user': to_user, 'can_post': can_post,
+                   'user_exchanges': user_exchanges,
+                   'from_other_exchanges': from_other_exchanges,})
+
+@login_required
+def post_exchange_form(request, username):
+    from_user = request.user
+    to_user = get_object_or_404(User, username=username)
     
     if from_user == to_user:
         return redirect('account_mypage')
+
+    # decide if the user can add another exchange.
+    can_post = False
+    if can_user_add_exchange(from_user, to_user):
+        can_post = True
 
     if request.method == 'POST':
         form = ExchangeForm(request.POST, user_from=from_user, user_to=to_user)
@@ -54,11 +96,15 @@ def post_exchange(request, username):
             exchange = form.save(commit=False)
             exchange.from_user = from_user
             exchange.to_user = to_user
+            exchange.from_status = ExchangeSourceStatus.SOURCE_REQUEST.value
+            exchange.to_status = ExchangeTargetStatus.TARGET_NO_STATUS.value
             exchange.save()
             form.save_m2m()
             print(exchange.from_item.all(), exchange.to_item.all())
+            return redirect('post_exchange', username=username)
     else:
         form = ExchangeForm(user_from=from_user, user_to=to_user)
 
-    return render(request, 'book_exchange_post.html', 
-                  {'form': form, 'to_user': to_user})
+    return render(request, 'book_exchange_form.html', 
+            {'form': form, 'to_user': to_user, 'can_post': can_post,
+             'max_exchange_amount': get_exchange_max_amount(),})

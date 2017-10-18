@@ -66,13 +66,20 @@ class BookItem(models.Model):
         return False
 
 # exchange
-class ExchangetStatus(Enum):
-    NO_STATUS=0
-    REQUEST_BY_SOURCE=1
-    TURNDOWN_BY_TARGET=2
-    REGRET_BY_SOURCE=3
-    ACCEPT_BY_TARGET=4
-    ITEM_IS_DELETED=5
+class ExchangeSourceStatus(Enum):
+    SOURCE_NO_STATUS=0
+    SOURCE_REQUEST=1
+    SOURCE_REGRET=2
+    SOURCE_CONFIRM=3
+    SOURCE_DELETE=4
+    # add below, do not change the string/number above
+
+class ExchangeTargetStatus(Enum):
+    TARGET_NO_STATUS=0
+    TARGET_ACCEPT=1
+    TARGET_DECLINE=2
+    TARGET_CONFRIM=3
+    TARGET_DELETE=4
     # add below, do not change the string/number above
 
 class ExchangeItem(models.Model):
@@ -80,7 +87,10 @@ class ExchangeItem(models.Model):
     from_user = models.ForeignKey(User, related_name='exchange_source', null=True)
     to_item = models.ManyToManyField(BookItem, related_name='exchange_target')
     to_user = models.ForeignKey(User, related_name='exchange_target', null=True)
-    status = models.IntegerField(default=ExchangetStatus.NO_STATUS.value)
+    from_status =\
+        models.IntegerField(default=ExchangeSourceStatus.SOURCE_NO_STATUS.value)
+    to_status =\
+        models.IntegerField(default=ExchangeTargetStatus.TARGET_NO_STATUS.value)
     created_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
@@ -91,3 +101,31 @@ class ExchangeItem(models.Model):
         if self.to_user:
             to_name = self.to_user.username
         return "from %s to %s" % (from_name, to_name)
+
+    def is_agree(self):
+        if self.from_status == ExchangeSourceStatus.SOURCE_REQUEST.value and\
+            self.to_status == ExchangeTargetStatus.TARGET_ACCEPT.value:
+            return True
+        return False
+
+    def is_waiting(self):
+        if self.from_status == ExchangeSourceStatus.SOURCE_REQUEST.value and\
+            self.to_status == ExchangeTargetStatus.TARGET_NO_STATUS.value:
+            return True
+        return False
+
+    def is_decline(self):
+        if self.from_status == ExchangeSourceStatus.SOURCE_REQUEST.value and\
+            self.to_status == ExchangeTargetStatus.TARGET_DECLINE.value:
+            return True
+        return False
+
+def get_exchange_max_amount():
+    max_amount_per_user = 3
+    return max_amount_per_user
+
+def can_user_add_exchange(from_user, to_user):
+    count = from_user.exchange_source.filter(to_user=to_user).count()
+    if count < get_exchange_max_amount():
+        return True
+    return False
