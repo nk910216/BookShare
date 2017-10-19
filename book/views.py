@@ -218,3 +218,35 @@ def reject_noticed(request, username, pk):
         words = ('操作失敗，無法確認被拒絕通知')
         messages.error(request, words)
     return redirect('post_exchange', username=username)
+
+@login_required
+@require_http_methods(['POST', 'GET'])
+def source_book_deleted_noticed(request, username, pk):
+    to_user = request.user
+    from_user = get_object_or_404(User, username=username)
+    exchange = get_object_or_404(ExchangeItem, pk=pk)
+
+    if from_user == to_user:
+        return redirect('account_mypage')
+
+    # if the exchange do not match the from/to
+    if exchange.from_user != from_user or exchange.to_user != to_user:
+        print('can not confirm book deletion, the user is not correct')
+        return redirect('post_exchange', username=username)
+
+    # messages
+    words = '用 '
+    for books in exchange.from_item.all():
+        words += (books.title + ' ')
+    words += (' 換 ')
+    for books in exchange.to_item.all():
+        words += (books.title + ' ')
+
+    result = exchange.status_change_source_book_deleted_noticed(pk)
+    if result:
+        words += (' 中有些書被刪除，因此交換取消的通知已被您確認!')
+        messages.success(request, words)
+    else:
+        words = ('操作失敗，無法確認因書籍刪除而取消交換的通知')
+        messages.error(request, words)
+    return redirect('post_exchange', username=username)

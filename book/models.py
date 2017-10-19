@@ -152,14 +152,23 @@ class ExchangeItem(models.Model):
     def status_change_book_delete(cls, book_item):
         exchange_list = book_item.exchange_source.select_for_update().all()
         for exchange in exchange_list:
-            exchange.from_item.clear()
-            exchange.status = ExchangeStatus.SOURCE_BOOK_DELETE.value
-            exchange.save()
+            if exchange.status == ExchangeStatus.CONFIRM.value or\
+                exchange.status == ExchangeStatus.CONFIRM_BY_SOURCE.value:
+                exchange.from_item.remove(book_item)
+                exchange.status = ExchangeStatus.SOURCE_BOOK_DELETE.value
+                exchange.save()
+            else: # we can remove directly, because it dose not matter to the other user
+                exchange.delete()
+
         exchange_list = book_item.exchange_target.select_for_update().all()
         for exchange in exchange_list:
-            exchange.to_item.clear()
-            exchange.status = ExchangeStatus.TARGET_BOOK_DELETE.value
-            exchange.save()
+            if exchange.status == ExchangeStatus.CONFIRM.value or\
+                exchange.status == ExchangeStatus.CONFIRM_BY_TARGET.value:
+                exchange.to_item.remove(book_item)
+                exchange.status = ExchangeStatus.TARGET_BOOK_DELETE.value
+                exchange.save()
+            else: # we can remove directly, because it dose not matter to the other user
+                exchange.delete()
 
     # Change state for exchange from no_status --> request. 
     #   we should also check the book items related to it.
@@ -217,6 +226,21 @@ class ExchangeItem(models.Model):
         exchange = cls.objects.select_for_update().get(pk=pk)
 
         if exchange.status != ExchangeStatus.REJECT.value:
+            return False
+        exchange.from_item.clear()
+        exchange.to_item.clear()
+        exchange.from_user = None
+        exchange.to_user = None
+        exchange.delete()
+        return True
+
+    # Change status for exchange from SOURCE_BOOK_DELETE-->FINISH_NOT_SUCCESS
+    @classmethod
+    @transaction.atomic
+    def status_change_source_book_deleted_noticed(cls, pk):
+        exchange = cls.objects.select_for_update().get(pk=pk)
+
+        if exchange.status != ExchangeStatus.SOURCE_BOOK_DELETE.value:
             return False
         exchange.from_item.clear()
         exchange.to_item.clear()
