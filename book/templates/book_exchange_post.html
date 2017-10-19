@@ -133,8 +133,6 @@
                 <li class="list-group-item list-group-item-success">您已經接受的請求</li>
                 {% elif exchange.is_waiting %}
                 <li class="list-group-item list-group-item-info"> 您尚未處理的請求</li>
-                {% elif exchange.is_regret %}
-                <li class="list-group-item list-group-item-danger">{{ to_user.username }} 反悔的請求</li>
                 {% elif exchange.is_source_book_delete %}
                 <li class="list-group-item list-group-item-danger">{{ to_user.username }} 移除了某些書，因此交換取消</li>
                 {% endif %}
