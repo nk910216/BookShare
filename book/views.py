@@ -21,15 +21,8 @@ def bookitem_delete(request, pk):
     if book_item.can_user_delete(request.user):
 
         # should set related exchanges
-        for exchange in book_item.exchange_source.all():
-            # exchange.clear()
-            exchange.status = ExchangeStatus.SOURCE_BOOK_DELETE.value
-            exchange.save()
-        for exchange in book_item.exchange_target.all():
-            # exchange.clear()
-            exchange.status = ExchangeStatus.TARGET_BOOK_DELETE.value
-            exchange.save()
-        
+        ExchangeItem.status_change_book_delete(book_item)
+
         book_item.delete()
         if request.is_ajax():
             return HttpResponse()
@@ -68,13 +61,16 @@ def post_exchange(request, username):
         can_post = True
 
     # query set 
-    exchange_list = from_user.exchange_source.filter(to_user=to_user)
+    exchange_list =\
+        from_user.exchange_source.order_by('-created_at').filter(to_user=to_user)
+    
     user_exchanges = [exchange for exchange in exchange_list\
             if exchange.is_agree() == True\
             or exchange.is_waiting() == True or exchange.is_reject() == True\
             or exchange.is_target_book_delete() == True]
     
-    exchange_list = from_user.exchange_target.filter(from_user=to_user)
+    exchange_list = \
+        from_user.exchange_target.order_by('created_at').filter(from_user=to_user)
     from_other_exchanges = [exchange for exchange in exchange_list\
             if exchange.is_agree() == True\
             or exchange.is_waiting() == True or exchange.is_regret() == True\
@@ -104,11 +100,20 @@ def post_exchange_form(request, username):
             exchange = form.save(commit=False)
             exchange.from_user = from_user
             exchange.to_user = to_user
-            exchange.status = ExchangeStatus.REQUEST.value
             exchange.save()
             form.save_m2m()
+            # exchange.status = ExchangeStatus.REQUEST.value
             print(exchange.from_item.all(), exchange.to_item.all())
-            return redirect('post_exchange', username=username)
+            exchange_valid = exchange.status_change_book_request(exchange.pk)
+            if exchange_valid == False:
+                print('Can not add because of some books already not valid')
+                form = ExchangeForm(user_from=from_user, user_to=to_user)
+                exchange.delete()
+            else:
+                # exchange.save()
+                # form.save_m2m()
+                # print(exchange.from_item.all(), exchange.to_item.all())
+                return redirect('post_exchange', username=username)
     else:
         form = ExchangeForm(user_from=from_user, user_to=to_user)
 

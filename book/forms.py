@@ -16,8 +16,12 @@ class ExchangeForm(forms.ModelForm):
         print('form : ', user_from)
         print('to : ', user_to)
         
-        self.fields['from_item'].queryset = user_from.book_items#BookItem.objects.filter(owner=user_from)
-        self.fields['to_item'].queryset = user_to.book_items#BookItem.objects.filter(owner=user_to)
+        self.fields['from_item'].queryset = user_from.book_items.filter(is_valid=True)
+        #BookItem.objects.filter(owner=user_from)
+        
+        self.fields['to_item'].queryset = user_to.book_items.filter(is_valid=True)
+        #BookItem.objects.filter(owner=user_to)
+        
         self.fields['from_item'].label = '我想拿來交換的書'
         self.fields['to_item'].label = '我想交換到的書'    
     

@@ -1,6 +1,6 @@
 from enum import Enum
 
-from django.db import models
+from django.db import models, transaction
 from django.contrib.auth.models import User
 from django.core.exceptions import MultipleObjectsReturned 
 from django.core.exceptions import ObjectDoesNotExist
@@ -46,6 +46,8 @@ class BookItem(models.Model):
 
     book = models.ForeignKey(Book, related_name='items', blank=True, null=True,
                              on_delete = models.SET_NULL)
+
+    is_valid = models.BooleanField(default=True)
 
     def __str__(self):
         return self.title
@@ -143,6 +145,41 @@ class ExchangeItem(models.Model):
         if self.status == ExchangeStatus.TARGET_BOOK_DELETE.value:
             return True
         return False
+    
+    # Change state of all exchanges when one book item is deleted.
+    @classmethod
+    @transaction.atomic
+    def status_change_book_delete(cls, book_item):
+        exchange_list = book_item.exchange_source.select_for_update().all()
+        for exchange in exchange_list:
+            exchange.from_item.clear()
+            exchange.status = ExchangeStatus.SOURCE_BOOK_DELETE.value
+            exchange.save()
+        exchange_list = book_item.exchange_target.select_for_update().all()
+        for exchange in exchange_list:
+            exchange.to_item.clear()
+            exchange.status = ExchangeStatus.TARGET_BOOK_DELETE.value
+            exchange.save()
+
+    # Change state for exchange from no_status --> request. 
+    #   we should also check the book items related to it.
+    @classmethod
+    @transaction.atomic
+    def status_change_book_request(cls, pk):
+        exchange = cls.objects.select_for_update().get(pk=pk)
+        from_books = exchange.from_item.select_for_update().all()
+        to_books = exchange.to_item.select_for_update().all()
+        exchange.status = ExchangeStatus.NO_STATUS.value
+
+        for book in from_books:
+            if book.is_valid == False:
+                return False
+        for book in to_books:
+            if book.is_valid == False:
+                return False
+        exchange.status = ExchangeStatus.REQUEST.value
+        exchange.save()
+        return True
 
 def get_exchange_max_amount():
     max_amount_per_user = 3

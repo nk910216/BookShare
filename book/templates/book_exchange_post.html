@@ -32,6 +32,7 @@
 
         <!-- accept exchanges -->
         {% for exchange in user_exchanges %}
+        <p>
         <ul class="list-group">
             <strong>
                 {% if exchange.is_agree %}
@@ -73,6 +74,7 @@
                 {% endif %}
             </li>
         </ul>
+        </p>
         {% empty %}
         <h3 align="center">尚未提出任何交換請求</h3>
         {% endfor %}
@@ -101,6 +103,7 @@
 
         <!-- accept exchanges -->
         {% for exchange in from_other_exchanges %}
+        <p>
         <ul class="list-group">
             <strong>
                 {% if exchange.is_agree %}
@@ -142,6 +145,7 @@
                 {% endif %}
             </li>
         </ul>
+        </p>
         {% empty %}
         <h3 align="center">尚未提出任何交換請求</h3>
         {% endfor %}
