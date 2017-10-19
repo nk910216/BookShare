@@ -210,6 +210,21 @@ class ExchangeItem(models.Model):
         exchange.save()
         return True
 
+    # Change status for exchange from reject-->FINISH_NOT_SUCCESS
+    @classmethod
+    @transaction.atomic
+    def status_change_reject_noticed(cls, pk):
+        exchange = cls.objects.select_for_update().get(pk=pk)
+
+        if exchange.status != ExchangeStatus.REJECT.value:
+            return False
+        exchange.from_item.clear()
+        exchange.to_item.clear()
+        exchange.from_user = None
+        exchange.to_user = None
+        exchange.delete()
+        return True
+
 def get_exchange_max_amount():
     max_amount_per_user = 3
     return max_amount_per_user

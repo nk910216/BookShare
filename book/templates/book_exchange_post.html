@@ -88,7 +88,10 @@
                     <button href="#" class="btn btn-danger">反悔</button>
                 </form>
                 {% elif exchange.is_reject %}
-                <button href="#" class="btn btn-primary">我知道了，不再顯示</button>
+                <form method="post" action="{% url 'reject_noticed' to_user.username exchange.pk %}">
+                    {% csrf_token %}
+                    <button href="#" class="btn btn-primary">我知道了，不再顯示</button>
+                </form>
                 {% elif exchange.is_target_book_delete %}
                 <button href="#" class="btn btn-primary">我知道了，不再顯示</button>
                 {% endif %}

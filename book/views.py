@@ -179,11 +179,42 @@ def reject_exchange(request, username, pk):
         words += (books.title + ' ')
 
     result = exchange.status_change_exchange_reject(pk)
-    print('reject')
     if result:
         words += (' 已經被您拒絕!')
         messages.success(request, words)
     else:
         words += (' 拒絕失敗~~~')
+        messages.error(request, words)
+    return redirect('post_exchange', username=username)
+
+@login_required
+@require_http_methods(['POST', 'GET'])
+def reject_noticed(request, username, pk):
+    from_user = request.user
+    to_user = get_object_or_404(User, username=username)
+    exchange = get_object_or_404(ExchangeItem, pk=pk)
+
+    if from_user == to_user:
+        return redirect('account_mypage')
+
+    # if the exchange do not match the from/to
+    if exchange.from_user != from_user or exchange.to_user != to_user:
+        print('can not confirm rejection, the user is not correct')
+        return redirect('post_exchange', username=username)
+
+    # messages
+    words = '用 '
+    for books in exchange.from_item.all():
+        words += (books.title + ' ')
+    words += (' 換 ')
+    for books in exchange.to_item.all():
+        words += (books.title + ' ')
+
+    result = exchange.status_change_reject_noticed(pk)
+    if result:
+        words += (' 被拒絕的通知已被您確認!')
+        messages.success(request, words)
+    else:
+        words = ('操作失敗，無法確認被拒絕通知')
         messages.error(request, words)
     return redirect('post_exchange', username=username)
