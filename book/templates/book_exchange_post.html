@@ -164,8 +164,6 @@
                     {% csrf_token %}
                     <button href="#" class="btn btn-danger">回絕</button>
                 </form>
-                {% elif exchange.is_regret %}
-                <button href="#" class="btn btn-primary">我知道了，不再顯示</button>
                 {% elif exchange.is_source_book_delete %}
                 <button href="#" class="btn btn-primary">我知道了，不再顯示</button>
                 {% endif %}
@@ -183,19 +181,6 @@
   </div>
 </div>
 
-<!-- accept exchanges -->
-{% for exchange in accepted_exchange %}
-<ul class="list-group">
-  <li class="list-group-item"><h1 align="center">Dapibus ac facilisis in</h1></li>
-  <li class="list-group-item list-group-item-success">Dapibus ac facilisis in</li>
-  <li class="list-group-item list-group-item-info">Cras sit amet nibh libero</li>
-  <li class="list-group-item list-group-item-warning">Porta ac consectetur ac</li>
-  <li class="list-group-item list-group-item-danger"> 
-    <button href="#" class="btn btn-danger btn-delete">刪除</button>
-  </li>
-</ul>
-{% empty %}
-{% endfor %}
 <!-- my request -->
 <!-- others request -->
 <!-- others reject-->
