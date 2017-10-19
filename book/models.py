@@ -66,20 +66,18 @@ class BookItem(models.Model):
         return False
 
 # exchange
-class ExchangeSourceStatus(Enum):
-    SOURCE_NO_STATUS=0
-    SOURCE_REQUEST=1
-    SOURCE_REGRET=2
-    SOURCE_CONFIRM=3
-    SOURCE_DELETE=4
-    # add below, do not change the string/number above
-
-class ExchangeTargetStatus(Enum):
-    TARGET_NO_STATUS=0
-    TARGET_ACCEPT=1
-    TARGET_DECLINE=2
-    TARGET_CONFRIM=3
-    TARGET_DELETE=4
+class ExchangeStatus(Enum):
+    NO_STATUS=0
+    REQUEST=1
+    REJECT=2
+    REGRET=3
+    CONFIRM=4
+    CONFIRM_BY_SOURCE=5
+    CONFIRM_BY_TARGET=6
+    SOURCE_BOOK_DELETE=7
+    TARGET_BOOK_DELETE=8
+    FINISH_SUCCESS=9
+    FINISH_NOT_SUCCESS=10
     # add below, do not change the string/number above
 
 class ExchangeItem(models.Model):
@@ -87,10 +85,7 @@ class ExchangeItem(models.Model):
     from_user = models.ForeignKey(User, related_name='exchange_source', null=True)
     to_item = models.ManyToManyField(BookItem, related_name='exchange_target')
     to_user = models.ForeignKey(User, related_name='exchange_target', null=True)
-    from_status =\
-        models.IntegerField(default=ExchangeSourceStatus.SOURCE_NO_STATUS.value)
-    to_status =\
-        models.IntegerField(default=ExchangeTargetStatus.TARGET_NO_STATUS.value)
+    status = models.IntegerField(default=ExchangeStatus.NO_STATUS.value)
     created_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
@@ -103,20 +98,49 @@ class ExchangeItem(models.Model):
         return "from %s to %s" % (from_name, to_name)
 
     def is_agree(self):
-        if self.from_status == ExchangeSourceStatus.SOURCE_REQUEST.value and\
-            self.to_status == ExchangeTargetStatus.TARGET_ACCEPT.value:
+        if self.status == ExchangeStatus.CONFIRM.value or\
+            self.status == ExchangeStatus.CONFIRM_BY_SOURCE.value or\
+            self.status == ExchangeStatus.CONFIRM_BY_TARGET.value:
+            return True
+        return False
+
+    def is_confirm(self):
+        if self.status == ExchangeStatus.CONFIRM.value:
+            return True
+        return False
+
+    def is_soruce_double_confirm(self):
+        if self.status == ExchangeStatus.CONFIRM_BY_SOURCE.value:
+            return True
+        return False
+
+    def is_target_double_confirm(self):
+        if self.status == ExchangeStatus.CONFIRM_BY_TARGET.value:
             return True
         return False
 
     def is_waiting(self):
-        if self.from_status == ExchangeSourceStatus.SOURCE_REQUEST.value and\
-            self.to_status == ExchangeTargetStatus.TARGET_NO_STATUS.value:
+        if self.status == ExchangeStatus.REQUEST.value:
             return True
         return False
 
-    def is_decline(self):
-        if self.from_status == ExchangeSourceStatus.SOURCE_REQUEST.value and\
-            self.to_status == ExchangeTargetStatus.TARGET_DECLINE.value:
+    def is_reject(self):
+        if self.status == ExchangeStatus.REJECT.value:
+            return True
+        return False
+
+    def is_regret(self):
+        if self.status == ExchangeStatus.REGRET.value:
+            return True
+        return False
+
+    def is_source_book_delete(self):
+        if self.status == ExchangeStatus.SOURCE_BOOK_DELETE.value:    
+            return True
+        return False
+
+    def is_target_book_delete(self):
+        if self.status == ExchangeStatus.TARGET_BOOK_DELETE.value:
             return True
         return False
 

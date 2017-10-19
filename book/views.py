@@ -6,7 +6,7 @@ from django.views.decorators.http import require_http_methods
 from django.db.models import Q
 
 from .models import BookItem, Book, ExchangeItem 
-from .models import ExchangeSourceStatus, ExchangeTargetStatus
+from .models import ExchangeStatus
 from .models import can_user_add_exchange, get_exchange_max_amount
 from .forms import ExchangeForm
 # Create your views here.
@@ -23,12 +23,13 @@ def bookitem_delete(request, pk):
         # should set related exchanges
         for exchange in book_item.exchange_source.all():
             # exchange.clear()
-            exchange.from_status = ExchangeSourceStatus.SOURCE_DELETE.value
+            exchange.status = ExchangeStatus.SOURCE_BOOK_DELETE.value
             exchange.save()
         for exchange in book_item.exchange_target.all():
             # exchange.clear()
-            exchange.to_status = ExchangeTargetStatus.TARGET_DELETE.value
+            exchange.status = ExchangeStatus.TARGET_BOOK_DELETE.value
             exchange.save()
+        
         book_item.delete()
         if request.is_ajax():
             return HttpResponse()
@@ -66,11 +67,18 @@ def post_exchange(request, username):
     if can_user_add_exchange(from_user, to_user):
         can_post = True
 
-    # query set
-    user_exchanges = from_user.exchange_source.filter(to_user=to_user, 
-                        from_status=ExchangeSourceStatus.SOURCE_REQUEST.value)
-    from_other_exchanges = from_user.exchange_target.filter(from_user=to_user,
-                            from_status=ExchangeSourceStatus.SOURCE_REQUEST.value)
+    # query set 
+    exchange_list = from_user.exchange_source.filter(to_user=to_user)
+    user_exchanges = [exchange for exchange in exchange_list\
+            if exchange.is_agree() == True\
+            or exchange.is_waiting() == True or exchange.is_reject() == True\
+            or exchange.is_target_book_delete() == True]
+    
+    exchange_list = from_user.exchange_target.filter(from_user=to_user)
+    from_other_exchanges = [exchange for exchange in exchange_list\
+            if exchange.is_agree() == True\
+            or exchange.is_waiting() == True or exchange.is_regret() == True\
+            or exchange.is_source_book_delete() == True]
 
     return render(request, 'book_exchange_post.html', 
                   {'to_user': to_user, 'can_post': can_post,
@@ -96,8 +104,7 @@ def post_exchange_form(request, username):
             exchange = form.save(commit=False)
             exchange.from_user = from_user
             exchange.to_user = to_user
-            exchange.from_status = ExchangeSourceStatus.SOURCE_REQUEST.value
-            exchange.to_status = ExchangeTargetStatus.TARGET_NO_STATUS.value
+            exchange.status = ExchangeStatus.REQUEST.value
             exchange.save()
             form.save_m2m()
             print(exchange.from_item.all(), exchange.to_item.all())
