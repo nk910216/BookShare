@@ -4,6 +4,7 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
 from django.views.decorators.http import require_http_methods
 from django.db.models import Q
+from django.contrib import messages
 
 from .models import BookItem, Book, ExchangeItem 
 from .models import ExchangeStatus
@@ -120,3 +121,36 @@ def post_exchange_form(request, username):
     return render(request, 'book_exchange_form.html', 
             {'form': form, 'to_user': to_user, 'can_post': can_post,
              'max_exchange_amount': get_exchange_max_amount(),})
+
+@login_required
+@require_http_methods(['POST', 'GET'])
+def regret_exchange(request, username, pk):
+    from_user = request.user
+    to_user = get_object_or_404(User, username=username)
+    exchange = get_object_or_404(ExchangeItem, pk=pk)   
+
+    if from_user == to_user:
+        return redirect('account_mypage')
+
+    # if the exchange do not match the from/to
+    if exchange.from_user != from_user or exchange.to_user != to_user:
+        print('can not regret')
+        return redirect('post_exchange', username=username)
+
+    # messages
+    words = '用 '
+    for books in exchange.from_item.all():
+        words += (books.title + ' ')
+    words += (' 換 ')
+    for books in exchange.to_item.all():
+        words += (books.title + ' ')
+
+    result = exchange.status_change_exchange_regret(pk)
+    if result:
+        words += (' 反悔成功!')
+        messages.success(request, words)
+    else:
+        words += (' 反悔失敗~~~')
+        messages.error(request, words)
+
+    return redirect('post_exchange', username=username)

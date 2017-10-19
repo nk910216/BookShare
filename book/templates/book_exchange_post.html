@@ -15,6 +15,17 @@
 <center><a href="{% url 'post_exchange_form' to_user.username %}" class="btn btn-primary">提出交換</a></center>
 <br/>
 
+<!-- message -->
+{% for message in messages %}
+  <div class="alert {{ message.tags }} alert-dismissible" role="alert">
+    <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+      <span aria-hidden="true">&times;</span>
+    </button>
+    <center>{{ message }}</center>
+  </div>
+{% empty %}
+{% endfor %}
+
 <!---->
 <div class="container">
   <div class="row justify-content-md-center">
@@ -66,7 +77,10 @@
                 <button href="#" class="btn btn-primary">已完成交換，不再顯示</button>
                 <button href="#" class="btn btn-danger">交換失敗，解除交換</button>
                 {% elif exchange.is_waiting %}
-                <button href="#" class="btn btn-danger">反悔</button>
+                <form method="post" action="{% url 'regret_exchange' to_user.username exchange.pk %}">
+                    {% csrf_token %}
+                    <button href="#" class="btn btn-danger">反悔</button>
+                </form>
                 {% elif exchange.is_reject %}
                 <button href="#" class="btn btn-primary">我知道了，不再顯示</button>
                 {% elif exchange.is_target_book_delete %}
