@@ -3,6 +3,12 @@
 
 {% block title %}mypage{% endblock%}
 
+{% block stylesheet %}
+<style type="text/css">
+    form{margin:0px; display:inline}
+</style>
+{% endblock %}
+
 {% block breadcrumb %}
 <li class="breadcrumb-item"><a href="{% url 'account_mypage' %}">我的主頁</a></li>
 <li class="breadcrumb-item"><a href="{% url 'account_mybooks' %}">我的書本</a></li>
@@ -151,7 +157,10 @@
                 <button href="#" class="btn btn-primary">已完成交換，不再顯示</button>
                 {% elif exchange.is_waiting %}
                 <button href="#" class="btn btn-primary">接受</button>
-                <button href="#" class="btn btn-danger">回絕</button>
+                <form method="post" action="{% url 'regect_exchange' to_user.username exchange.pk %}">
+                    {% csrf_token %}
+                    <button href="#" class="btn btn-danger">回絕</button>
+                </form>
                 {% elif exchange.is_regret %}
                 <button href="#" class="btn btn-primary">我知道了，不再顯示</button>
                 {% elif exchange.is_source_book_delete %}
