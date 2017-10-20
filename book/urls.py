@@ -3,7 +3,7 @@ from django.conf.urls import url
 from .views import (bookitem_delete, 
         targetbook_delete, post_exchange, post_exchange_form, 
         regret_exchange, reject_exchange, reject_noticed,
-        target_book_deleted_noticed)
+        target_book_deleted_noticed, confirm_exchange)
 
 urlpatterns = [
     url(r'^(?P<pk>\d+)/bookitem_detele/$', bookitem_delete, name='bookitem_delete'),
@@ -19,4 +19,6 @@ urlpatterns = [
         reject_noticed, name='reject_noticed'),
     url(r'^(?P<username>.+)/exchange/targetbookdelete_noticed/(?P<pk>\d+)/$',
         target_book_deleted_noticed, name='targetbook_delete_noticed'),
+    url(r'^(?P<username>.+)/exchange/confirm_exchange/(?P<pk>\d+)/$',
+        confirm_exchange, name='confirm_exchange'),
 ]

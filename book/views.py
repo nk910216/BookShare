@@ -5,6 +5,7 @@ from django.contrib.auth.models import User
 from django.views.decorators.http import require_http_methods
 from django.db.models import Q
 from django.contrib import messages
+from django.db import transaction
 
 from .models import BookItem, Book, ExchangeItem 
 from .models import ExchangeStatus
@@ -256,4 +257,72 @@ def target_book_deleted_noticed(request, username, pk):
     else:
         words = ('操作失敗，無法確認因書籍刪除而取消交換的通知')
         messages.error(request, words)
+    return redirect('post_exchange', username=username)
+
+@login_required
+@require_http_methods(['POST', 'GET'])
+def confirm_exchange(request, username, pk):
+    to_user = request.user
+    from_user = get_object_or_404(User, username=username)
+    exchange = get_object_or_404(ExchangeItem, pk=pk)   
+
+    if from_user == to_user:
+        return redirect('account_mypage')
+
+    # if the exchange do not match the from/to
+    if exchange.from_user != from_user or exchange.to_user != to_user:
+        print('can not regret')
+        return redirect('post_exchange', username=username)
+
+    # messages
+    words = '用 '
+    for books in exchange.from_item.all():
+        words += (books.title + ' ')
+    words += (' 換 ')
+    for books in exchange.to_item.all():
+        words += (books.title + ' ')
+
+    result = False # return value of the state change from request-->confirm
+    # check if we can cofirm, use the is_valid flag
+    with transaction.atomic():
+        book_item_list = exchange.from_item.all().union(exchange.to_item.all()).select_for_update().all()
+        for book_item in book_item_list:
+            if book_item.is_valid == False:
+                # can not confirm send message and return.
+                messages.error(request, '因為有些書已經被其他交換確認，因此您無法確認這個交換，請重新整理取得最新資訊')
+                return redirect('post_exchange', username=username)
+        # check and change state of the exchange
+        result = exchange.status_change_exchange_confirm(pk)
+
+        if result:
+            words += (' 的請求已被您確認! 您的相關物品已被鎖定而無法進行其他交換')
+        else:
+            words = ('操作失敗，無法確認被拒絕通知')
+            messages.error(request, words)
+            return redirect('post_exchange', username=username)
+
+        # OK, we can confirm, set all book items to invalid first
+        for book_item in book_item_list:
+            book_item.is_valid = False
+            book_item.book = None
+            # book_item.owner = None
+            book_item.save()
+
+    # Safe to do the CONFIRM stuff.
+    # Now we first regret/reject all our other request.
+    to_book = exchange.to_item.all()
+    for book_item in to_book:
+        for book_exchange in book_item.exchange_source.all():
+            book_exchange.status_change_exchange_regret(book_exchange.pk)
+        for book_exchange in book_item.exchange_target.all():
+            book_exchange.status_change_exchange_reject(book_exchange.pk)
+    # Now regret/reject all the request on the other side.
+    from_book = exchange.from_item.all()
+    for book_item in from_book:
+        for book_exchange in book_item.exchange_source.all():
+            book_exchange.status_change_exchange_regret(book_exchange.pk)
+        for book_exchange in book_item.exchange_target.all():
+            book_exchange.status_change_exchange_reject(book_exchange.pk)
+
+    messages.success(request, words)
     return redirect('post_exchange', username=username)

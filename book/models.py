@@ -73,7 +73,7 @@ class BookItem(models.Model):
         book_item = BookItem.objects.select_for_update().get(pk=pk)
         if book_item.is_valid == False:
             return False
-        book_item.is_valid = True
+        book_item.is_valid = False
         book_item.book = None
         # book_item.owner = None
         book_item.save()
@@ -112,24 +112,12 @@ class ExchangeItem(models.Model):
         return "from %s to %s" % (from_name, to_name)
 
     def is_agree(self):
-        if self.status == ExchangeStatus.CONFIRM.value or\
-            self.status == ExchangeStatus.CONFIRM_BY_SOURCE.value or\
-            self.status == ExchangeStatus.CONFIRM_BY_TARGET.value:
+        if self.status == ExchangeStatus.CONFIRM.value:
             return True
         return False
 
     def is_confirm(self):
         if self.status == ExchangeStatus.CONFIRM.value:
-            return True
-        return False
-
-    def is_soruce_double_confirm(self):
-        if self.status == ExchangeStatus.CONFIRM_BY_SOURCE.value:
-            return True
-        return False
-
-    def is_target_double_confirm(self):
-        if self.status == ExchangeStatus.CONFIRM_BY_TARGET.value:
             return True
         return False
 
@@ -258,6 +246,19 @@ class ExchangeItem(models.Model):
         exchange.from_user = None
         exchange.to_user = None
         exchange.delete()
+        return True
+
+    # Change status for exchange from REQUEST-->CONFIRM
+    @classmethod
+    @transaction.atomic
+    def status_change_exchange_confirm(cls, pk):
+        exchange = cls.objects.select_for_update().get(pk=pk)
+
+        if exchange.status != ExchangeStatus.REQUEST.value:
+            return False
+
+        exchange.status = ExchangeStatus.CONFIRM.value
+        exchange.save()
         return True
 
 def get_exchange_max_amount():

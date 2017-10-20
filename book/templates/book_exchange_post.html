@@ -53,21 +53,21 @@
         <ul class="list-group">
             <strong>
                 {% if exchange.is_agree %}
-                <li class="list-group-item list-group-item-success">已被 {{ to_user.username }} 接受</li>
+                    <li class="list-group-item list-group-item-success">已被 {{ to_user.username }} 接受</li>
                 {% elif exchange.is_waiting %}
-                <li class="list-group-item list-group-item-info">已提交給 {{ to_user.username }} 但尚未接受</li>
+                    <li class="list-group-item list-group-item-info">已提交給 {{ to_user.username }} 但尚未接受</li>
                 {% elif exchange.is_reject %}
-                <li class="list-group-item list-group-item-danger">已被 {{ to_user.username }} 拒絕</li>
+                    <li class="list-group-item list-group-item-danger">已被 {{ to_user.username }} 拒絕</li>
                 {% elif exchange.is_target_book_delete %}
-                <li class="list-group-item list-group-item-danger">{{ to_user.username }} 移除了某些書，因此交換取消</li>
+                    <li class="list-group-item list-group-item-danger">{{ to_user.username }} 移除了某些書，因此交換取消</li>
                 {% endif %}
             </strong>
             <li class="list-group-item">
                 您想用 
                 {% for book in exchange.from_item.all %}
-                <button href="#" class="btn btn-default"><strong>
-                    {{ book.title }}
-                </strong></button>
+                    <button href="#" class="btn btn-default"><strong>
+                        {{ book.title }}
+                    </strong></button>
                 {% endfor %}
                 <br/>
                 <strong><font color="#A500CC">交換</font>
@@ -82,24 +82,24 @@
                 {% endfor %}
             </li>
             <li class="list-group-item"> 
-                {% if exchange.is_confirm or exchange.is_target_double_confirm %}
-                <button href="#" class="btn btn-primary">已完成交換，不再顯示</button>
-                <button href="#" class="btn btn-danger">交換失敗，解除交換</button>
+                {% if exchange.is_confirm %}
+                    <button href="#" class="btn btn-primary">已完成交換，不再顯示</button>
+                    <button href="#" class="btn btn-danger">交換失敗，解除交換</button>
                 {% elif exchange.is_waiting %}
-                <form method="post" action="{% url 'regret_exchange' to_user.username exchange.pk %}">
-                    {% csrf_token %}
-                    <button href="#" class="btn btn-danger">反悔</button>
-                </form>
+                    <form method="post" action="{% url 'regret_exchange' to_user.username exchange.pk %}">
+                        {% csrf_token %}
+                        <button href="#" class="btn btn-danger">反悔</button>
+                    </form>
                 {% elif exchange.is_reject %}
-                <form method="post" action="{% url 'reject_noticed' to_user.username exchange.pk %}">
-                    {% csrf_token %}
-                    <button href="#" class="btn btn-primary">我知道了，不再顯示</button>
-                </form>
+                    <form method="post" action="{% url 'reject_noticed' to_user.username exchange.pk %}">
+                        {% csrf_token %}
+                        <button href="#" class="btn btn-primary">我知道了，不再顯示</button>
+                    </form>
                 {% elif exchange.is_target_book_delete %}
-                <form method="post" action="{% url 'targetbook_delete_noticed' to_user.username exchange.pk %}">
-                    {% csrf_token %}
-                    <button href="#" class="btn btn-primary">我知道了，不再顯示</button>
-                </form>
+                    <form method="post" action="{% url 'targetbook_delete_noticed' to_user.username exchange.pk %}">
+                        {% csrf_token %}
+                        <button href="#" class="btn btn-primary">我知道了，不再顯示</button>
+                    </form>
                 {% endif %}
             </li>
         </ul>
@@ -136,38 +136,41 @@
         <ul class="list-group">
             <strong>
                 {% if exchange.is_agree %}
-                <li class="list-group-item list-group-item-success">您已經接受的請求</li>
+                    <li class="list-group-item list-group-item-success">您已經接受的請求</li>
                 {% elif exchange.is_waiting %}
-                <li class="list-group-item list-group-item-info"> 您尚未處理的請求</li>
+                    <li class="list-group-item list-group-item-info"> 您尚未處理的請求</li>
                 {% elif exchange.is_source_book_delete %}
-                <li class="list-group-item list-group-item-danger">{{ to_user.username }} 移除了某些書，因此交換取消</li>
+                    <li class="list-group-item list-group-item-danger">{{ to_user.username }} 移除了某些書，因此交換取消</li>
                 {% endif %}
             </strong>
             <li class="list-group-item">
                 {{ to_user.username }} 想用 
                 {% for book in exchange.from_item.all %}
-                <button href="#" class="btn btn-default"><strong>
-                    {{ book.title }}
-                </strong></button>
+                    <button href="#" class="btn btn-default"><strong>
+                        {{ book.title }}
+                    </strong></button>
                 {% endfor %}
                 <br/>
                 <strong><font color="#A500CC">交換</font>
                 您的</strong> 
                 {% for book in exchange.to_item.all %}
-                <button href="#" class="btn btn-default"><strong>
-                    {{ book.title }}
-                </strong></button>
+                    <button href="#" class="btn btn-default"><strong>
+                        {{ book.title }}
+                    </strong></button>
                 {% endfor %}
             </li>
             <li class="list-group-item"> 
                 {% if exchange.is_confirm or exchange.is_source_double_confirm %}
-                <button href="#" class="btn btn-primary">已完成交換，不再顯示</button>
+                    <button href="#" class="btn btn-primary">已完成交換，不再顯示</button>
                 {% elif exchange.is_waiting %}
-                <button href="#" class="btn btn-primary">接受</button>
-                <form method="post" action="{% url 'regect_exchange' to_user.username exchange.pk %}">
-                    {% csrf_token %}
-                    <button href="#" class="btn btn-danger">回絕</button>
-                </form>
+                    <form method="post" action="{% url 'confirm_exchange' to_user.username exchange.pk %}">
+                        {% csrf_token %}
+                        <button href="#" class="btn btn-primary">接受</button>
+                    </form>
+                    <form method="post" action="{% url 'regect_exchange' to_user.username exchange.pk %}">
+                        {% csrf_token %}
+                        <button href="#" class="btn btn-danger">回絕</button>
+                    </form>
                 {% elif exchange.is_source_book_delete %}
                     <button href="#" class="btn btn-primary">我知道了，不再顯示</button>
                 {% endif %}
