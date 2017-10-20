@@ -67,6 +67,18 @@ class BookItem(models.Model):
             return True
         return False
 
+    @classmethod
+    @transaction.atomic
+    def check_and_set_invalid(cls, pk):
+        book_item = BookItem.objects.select_for_update().get(pk=pk)
+        if book_item.is_valid == False:
+            return False
+        book_item.is_valid = True
+        book_item.book = None
+        # book_item.owner = None
+        book_item.save()
+        return True
+
 # exchange
 class ExchangeStatus(Enum):
     NO_STATUS=0
@@ -152,8 +164,7 @@ class ExchangeItem(models.Model):
     def status_change_book_delete(cls, book_item):
         exchange_list = book_item.exchange_source.select_for_update().all()
         for exchange in exchange_list:
-            if exchange.status == ExchangeStatus.CONFIRM.value or\
-                exchange.status == ExchangeStatus.CONFIRM_BY_SOURCE.value:
+            if exchange.status == ExchangeStatus.CONFIRM.value:
                 exchange.from_item.remove(book_item)
                 exchange.status = ExchangeStatus.SOURCE_BOOK_DELETE.value
                 exchange.save()
@@ -163,7 +174,6 @@ class ExchangeItem(models.Model):
         exchange_list = book_item.exchange_target.select_for_update().all()
         for exchange in exchange_list:
             if exchange.status == ExchangeStatus.CONFIRM.value or\
-                exchange.status == ExchangeStatus.CONFIRM_BY_TARGET.value or\
                 exchange.status == ExchangeStatus.REQUEST.value:
                 exchange.to_item.remove(book_item)
                 exchange.status = ExchangeStatus.TARGET_BOOK_DELETE.value

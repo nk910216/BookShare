@@ -21,10 +21,17 @@ def bookitem_delete(request, pk):
 
     if book_item.can_user_delete(request.user):
 
-        # should set related exchanges
-        ExchangeItem.status_change_book_delete(book_item)
+        # set the invalid first
+        is_valid = book_item.check_and_set_invalid(pk)
 
-        book_item.delete()
+        if is_valid == False:
+            # it is used by some comfirm exchanges.
+            pass
+        else:
+            # should set related exchanges
+            ExchangeItem.status_change_book_delete(book_item)
+            book_item.delete()
+        
         if request.is_ajax():
             return HttpResponse()
         return redirect('account_mybooks')

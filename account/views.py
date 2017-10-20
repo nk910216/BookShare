@@ -39,7 +39,7 @@ def mybooks(request):
     else:
         form = NewBookItemForm()
 
-    books = request.user.book_items.all().order_by('-created_at')
+    books = request.user.book_items.filter(is_valid=True).order_by('-created_at')
 
     return render(request, 'mybooks.html', {'form': form, 'books': books})
 
