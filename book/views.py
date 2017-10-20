@@ -221,9 +221,9 @@ def reject_noticed(request, username, pk):
 
 @login_required
 @require_http_methods(['POST', 'GET'])
-def source_book_deleted_noticed(request, username, pk):
-    to_user = request.user
-    from_user = get_object_or_404(User, username=username)
+def target_book_deleted_noticed(request, username, pk):
+    from_user = request.user
+    to_user = get_object_or_404(User, username=username)
     exchange = get_object_or_404(ExchangeItem, pk=pk)
 
     if from_user == to_user:
@@ -242,7 +242,7 @@ def source_book_deleted_noticed(request, username, pk):
     for books in exchange.to_item.all():
         words += (books.title + ' ')
 
-    result = exchange.status_change_source_book_deleted_noticed(pk)
+    result = exchange.status_change_target_book_deleted_noticed(pk)
     if result:
         words += (' 中有些書被刪除，因此交換取消的通知已被您確認!')
         messages.success(request, words)

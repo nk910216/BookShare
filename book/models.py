@@ -163,7 +163,8 @@ class ExchangeItem(models.Model):
         exchange_list = book_item.exchange_target.select_for_update().all()
         for exchange in exchange_list:
             if exchange.status == ExchangeStatus.CONFIRM.value or\
-                exchange.status == ExchangeStatus.CONFIRM_BY_TARGET.value:
+                exchange.status == ExchangeStatus.CONFIRM_BY_TARGET.value or\
+                exchange.status == ExchangeStatus.REQUEST.value:
                 exchange.to_item.remove(book_item)
                 exchange.status = ExchangeStatus.TARGET_BOOK_DELETE.value
                 exchange.save()
@@ -237,10 +238,10 @@ class ExchangeItem(models.Model):
     # Change status for exchange from SOURCE_BOOK_DELETE-->FINISH_NOT_SUCCESS
     @classmethod
     @transaction.atomic
-    def status_change_source_book_deleted_noticed(cls, pk):
+    def status_change_target_book_deleted_noticed(cls, pk):
         exchange = cls.objects.select_for_update().get(pk=pk)
 
-        if exchange.status != ExchangeStatus.SOURCE_BOOK_DELETE.value:
+        if exchange.status != ExchangeStatus.TARGET_BOOK_DELETE.value:
             return False
         exchange.from_item.clear()
         exchange.to_item.clear()

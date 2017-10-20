@@ -73,9 +73,12 @@
                 <strong><font color="#A500CC">交換</font>
                 {{ to_user.username }}</strong> 的
                 {% for book in exchange.to_item.all %}
-                <button href="#" class="btn btn-default"><strong>
-                    {{ book.title }}
-                </strong></button>
+                    <button href="#" class="btn btn-default"><strong>
+                        {{ book.title }}
+                    </strong></button>
+                {% empty %}
+                    某些書
+                    </strong></button>
                 {% endfor %}
             </li>
             <li class="list-group-item"> 
@@ -93,7 +96,10 @@
                     <button href="#" class="btn btn-primary">我知道了，不再顯示</button>
                 </form>
                 {% elif exchange.is_target_book_delete %}
-                <button href="#" class="btn btn-primary">我知道了，不再顯示</button>
+                <form method="post" action="{% url 'targetbook_delete_noticed' to_user.username exchange.pk %}">
+                    {% csrf_token %}
+                    <button href="#" class="btn btn-primary">我知道了，不再顯示</button>
+                </form>
                 {% endif %}
             </li>
         </ul>
@@ -163,10 +169,7 @@
                     <button href="#" class="btn btn-danger">回絕</button>
                 </form>
                 {% elif exchange.is_source_book_delete %}
-                <form method="post" action="{% url 'sourcebook_delete_noticed' to_user.username exchange.pk %}">
-                    {% csrf_token %}
                     <button href="#" class="btn btn-primary">我知道了，不再顯示</button>
-                </form>
                 {% endif %}
             </li>
         </ul>
