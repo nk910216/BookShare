@@ -342,7 +342,7 @@ def get_exchange_max_amount():
     return max_amount_per_user
 
 def can_user_add_exchange(from_user, to_user):
-    count = from_user.exchange_source.filter(to_user=to_user).count()
+    count = from_user.exchange_source.filter(to_user=to_user, status=ExchangeStatus.REQUEST.value).count()
     if count < get_exchange_max_amount():
         return True
     return False
