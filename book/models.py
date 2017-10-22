@@ -86,12 +86,17 @@ class ExchangeStatus(Enum):
     REJECT=2
     REGRET=3
     CONFIRM=4
-    CONFIRM_BY_SOURCE=5
-    CONFIRM_BY_TARGET=6
-    SOURCE_BOOK_DELETE=7
-    TARGET_BOOK_DELETE=8
-    FINISH_SUCCESS=9
-    FINISH_NOT_SUCCESS=10
+    SOURCE_BOOK_DELETE=5
+    TARGET_BOOK_DELETE=6
+    # for exchange record and display
+    CONFIRM_SRC_FAIL = 7 # src think the exchange is fail. target not decide yet.
+    CONFIRM_SRC_OK = 8 # src think the exchange is finish. target not decide yet.
+    CONFIRM_TAR_FAIL = 9 # target think the exchange is fail. source not decide yet.
+    CONFIRM_TAR_OK = 10 # target think the exchange is finish. source not decide yet.
+    CONFIRM_S0T0 = 11 # src fail, target fail
+    CONFIRM_S0T1 = 12 # src fail, target OK
+    CONFIRM_S1T0 = 13 # src OK, target fail
+    CONFIRM_S1T1 = 14 # src OK, target OK
     # add below, do not change the string/number above
 
 class ExchangeItem(models.Model):
@@ -143,6 +148,20 @@ class ExchangeItem(models.Model):
 
     def is_target_book_delete(self):
         if self.status == ExchangeStatus.TARGET_BOOK_DELETE.value:
+            return True
+        return False
+
+    def is_source_book_confirm_show(self):
+        if self.status == ExchangeStatus.CONFIRM.value or\
+            self.status == ExchangeStatus.CONFIRM_TAR_FAIL.value or\
+            self.status == ExchangeStatus.CONFIRM_TAR_OK.value:
+            return True
+        return False
+
+    def is_target_book_confirm_show(self):
+        if self.status == ExchangeStatus.CONFIRM.value or\
+            self.status == ExchangeStatus.CONFIRM_SRC_FAIL.value or\
+            self.status == ExchangeStatus.CONFIRM_SRC_OK.value:
             return True
         return False
     
@@ -260,6 +279,63 @@ class ExchangeItem(models.Model):
         exchange.status = ExchangeStatus.CONFIRM.value
         exchange.save()
         return True
+
+    # Change status for exchange from CONFIRM to CONFORM_XXXX - source user says the exchange is OK/FAIL.
+    @classmethod
+    @transaction.atomic
+    def status_change_confirm_source_noticed(cls, pk, is_ok):
+        exchange = cls.objects.select_for_update().get(pk=pk)
+
+        if exchange.status == ExchangeStatus.CONFIRM.value:
+            if is_ok:
+                exchange.status = ExchangeStatus.CONFIRM_SRC_OK.value
+            else:
+                exchange.status = ExchangeStatus.CONFIRM_SRC_FAIL.value
+            exchange.save()
+            return True
+        elif exchange.status == ExchangeStatus.CONFIRM_TAR_OK.value:
+            if is_ok:
+                exchange.status = ExchangeStatus.CONFIRM_S1T1.value
+            else:
+                exchange.status = ExchangeStatus.CONFIRM_S0T1.value
+            exchange.save()
+            return True
+        elif exchange.status == ExchangeStatus.CONFIRM_TAR_FAIL.value:
+            if is_ok:
+                exchange.status = ExchangeStatus.CONFIRM_S1T0.value
+            else:
+                exchange.status = ExchangeStatus.CONFIRM_S0T0.value
+            exchange.save()
+            return True
+        return False
+
+    # Change status for exchange from CONFIRM to CONFORM_XXXX - target user says the exchange is OK/FAIL.
+    @classmethod
+    @transaction.atomic
+    def status_change_confirm_target_noticed(cls, pk, is_ok):
+        exchange = cls.objects.select_for_update().get(pk=pk)
+        if exchange.status == ExchangeStatus.CONFIRM.value:
+            if is_ok:
+                exchange.status = ExchangeStatus.CONFIRM_TAR_OK.value
+            else:
+                exchange.status = ExchangeStatus.CONFIRM_TAR_FAIL.value
+            exchange.save()
+            return True
+        elif exchange.status == ExchangeStatus.CONFIRM_SRC_OK.value:
+            if is_ok:
+                exchange.status = ExchangeStatus.CONFIRM_S1T1.value
+            else:
+                exchange.status = ExchangeStatus.CONFIRM_S1T0.value
+            exchange.save()
+            return True
+        elif exchange.status == ExchangeStatus.CONFIRM_SRC_FAIL.value:
+            if is_ok:
+                exchange.status = ExchangeStatus.CONFIRM_S0T1.value
+            else:
+                exchange.status = ExchangeStatus.CONFIRM_S0T0.value
+            exchange.save()
+            return True
+        return False
 
 def get_exchange_max_amount():
     max_amount_per_user = 3

@@ -74,14 +74,14 @@ def post_exchange(request, username):
         from_user.exchange_source.order_by('-created_at').filter(to_user=to_user)
     
     user_exchanges = [exchange for exchange in exchange_list\
-            if exchange.is_agree() == True\
+            if exchange.is_source_book_confirm_show() == True\
             or exchange.is_waiting() == True or exchange.is_reject() == True\
             or exchange.is_target_book_delete() == True]
     
     exchange_list = \
         from_user.exchange_target.order_by('created_at').filter(from_user=to_user)
     from_other_exchanges = [exchange for exchange in exchange_list\
-            if exchange.is_agree() == True\
+            if exchange.is_target_book_confirm_show() == True\
             or exchange.is_waiting() == True or exchange.is_regret() == True\
             or exchange.is_source_book_delete() == True]
 
@@ -325,4 +325,109 @@ def confirm_exchange(request, username, pk):
             book_exchange.status_change_exchange_reject(book_exchange.pk)
 
     messages.success(request, words)
+    return redirect('post_exchange', username=username)
+
+@login_required
+@require_http_methods(['POST', 'GET'])
+def source_confirm_noticed(request, username, is_ok, pk):
+    from_user = request.user
+    to_user = get_object_or_404(User, username=username)
+    exchange = get_object_or_404(ExchangeItem, pk=pk)   
+
+    if is_ok != '0' and is_ok != '1':
+        raise Http404
+    is_ok = int(is_ok)
+
+    if from_user == to_user:
+        return redirect('account_mypage')
+
+    # if the exchange do not match the from/to
+    if exchange.from_user != from_user or exchange.to_user != to_user:
+        print('can not notic the confirm, the user is not matched')
+        return redirect('post_exchange', username=username)
+
+    # messages
+    words = '用 '
+    for books in exchange.from_item.all():
+        words += (books.title + ' ')
+    words += (' 換 ')
+    for books in exchange.to_item.all():
+        words += (books.title + ' ')
+
+    result = exchange.status_change_confirm_source_noticed(pk, is_ok)
+
+    # need to add the books back to user.
+    if result and not is_ok:
+        for book_item in exchange.from_item.all():
+            # New item
+            book_item.pk = None
+            book_item.is_valid = True
+            book_item.save()
+            book_item.exchange_source.clear()
+            book_item.exchange_target.clear()
+            book_item.check_abstract_book()
+            book_item.save()
+
+    if result:
+        if is_ok:
+            words += (' 已被您確認交換完成，感謝您的使用！')
+        else:
+            words += (' 已被您認定為交換失敗，已經將您的書重新加入您的書櫃！')
+        messages.success(request, words)
+    else:
+        words = ('的交換可能已經被您確認過，請重新整理更新到最新狀態！')
+        messages.error(request, words)
+    return redirect('post_exchange', username=username)
+
+@login_required
+@require_http_methods(['POST', 'GET'])
+def target_confirm_noticed(request, username, is_ok, pk):
+
+    to_user = request.user
+    from_user = get_object_or_404(User, username=username)
+    exchange = get_object_or_404(ExchangeItem, pk=pk)
+    
+    if is_ok != '0' and is_ok != '1':
+        raise Http404
+    is_ok = int(is_ok)
+
+    if from_user == to_user:
+        return redirect('account_mypage')
+
+    # if the exchange do not match the from/to
+    if exchange.from_user != from_user or exchange.to_user != to_user:
+        print('can not notic the confirm, the user is not matched')
+        return redirect('post_exchange', username=username)
+
+    # messages
+    words = '用 '
+    for books in exchange.from_item.all():
+        words += (books.title + ' ')
+    words += (' 換 ')
+    for books in exchange.to_item.all():
+        words += (books.title + ' ')
+
+    result = exchange.status_change_confirm_target_noticed(pk, is_ok)
+
+    # need to add the books back to user.
+    if result and not is_ok:
+        for book_item in exchange.to_item.all():
+            # New item
+            book_item.pk = None
+            book_item.is_valid = True
+            book_item.save()
+            book_item.exchange_source.clear()
+            book_item.exchange_target.clear()
+            book_item.check_abstract_book()
+            book_item.save()
+
+    if result:
+        if is_ok:
+            words += (' 已被您確認交換完成，感謝您的使用！')
+        else:
+            words += (' 已被您認定為交換失敗，已經將您的書重新加入您的書櫃！')
+        messages.success(request, words)
+    else:
+        words = ('的交換可能已經被您確認過，請重新整理更新到最新狀態！')
+        messages.error(request, words)
     return redirect('post_exchange', username=username)

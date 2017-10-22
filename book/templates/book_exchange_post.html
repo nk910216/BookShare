@@ -52,7 +52,7 @@
         <p>
         <ul class="list-group">
             <strong>
-                {% if exchange.is_agree %}
+                {% if exchange.is_source_book_confirm_show %}
                     <li class="list-group-item list-group-item-success">已被 {{ to_user.username }} 接受</li>
                 {% elif exchange.is_waiting %}
                     <li class="list-group-item list-group-item-info">已提交給 {{ to_user.username }} 但尚未接受</li>
@@ -82,9 +82,16 @@
                 {% endfor %}
             </li>
             <li class="list-group-item"> 
-                {% if exchange.is_confirm %}
-                    <button href="#" class="btn btn-primary">已完成交換，不再顯示</button>
-                    <button href="#" class="btn btn-danger">交換失敗，解除交換</button>
+                {% if exchange.is_source_book_confirm_show %}
+                    <form method="post" action="{% url 'source_confirm_noticed' to_user.username 1 exchange.pk %}">
+                        {% csrf_token %}
+                        <button href="#" class="btn btn-primary">已確認完成交換(此訊息不再顯示)</button>
+                    </form>
+
+                    <form method="post" action="{% url 'source_confirm_noticed' to_user.username 0 exchange.pk %}">
+                        {% csrf_token %}
+                        <button href="#" class="btn btn-danger">交換失敗，將書本重新加入我的書櫃(此訊息不再顯示)</button>
+                    </form>
                 {% elif exchange.is_waiting %}
                     <form method="post" action="{% url 'regret_exchange' to_user.username exchange.pk %}">
                         {% csrf_token %}
@@ -135,7 +142,7 @@
         <p>
         <ul class="list-group">
             <strong>
-                {% if exchange.is_agree %}
+                {% if exchange.is_target_book_confirm_show %}
                     <li class="list-group-item list-group-item-success">您已經接受的請求</li>
                 {% elif exchange.is_waiting %}
                     <li class="list-group-item list-group-item-info"> 您尚未處理的請求</li>
@@ -160,8 +167,16 @@
                 {% endfor %}
             </li>
             <li class="list-group-item"> 
-                {% if exchange.is_confirm or exchange.is_source_double_confirm %}
-                    <button href="#" class="btn btn-primary">已完成交換，不再顯示</button>
+                {% if exchange.is_target_book_confirm_show %}
+                    <form method="post" action="{% url 'target_confirm_noticed' to_user.username 1 exchange.pk %}">
+                        {% csrf_token %}
+                        <button href="#" class="btn btn-primary">已確認完成交換(此訊息不再顯示)</button>
+                    </form>
+
+                    <form method="post" action="{% url 'target_confirm_noticed' to_user.username 0 exchange.pk %}">
+                        {% csrf_token %}
+                        <button href="#" class="btn btn-danger">交換失敗，將書本重新加入我的書櫃(此訊息不再顯示)</button>
+                    </form>
                 {% elif exchange.is_waiting %}
                     <form method="post" action="{% url 'confirm_exchange' to_user.username exchange.pk %}">
                         {% csrf_token %}
