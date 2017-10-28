@@ -1,0 +1,42 @@
+<p class="card-text">
+    <!-- accept exchanges -->
+    {% for available_user in available_user_list %}
+    <p>
+    <ul class="list-group">
+        <li class="list-group-item list-group-item-success">
+            <strong>
+                使用者 {{ available_user.user.username }} 所徵求/擁有的書
+            </strong>
+        </li>
+        <li class="list-group-item">
+            <strong><font color="#A500CC">擁有的書：</font></strong> 
+            {% for book in available_user.main_ask_for %}
+                <button href="#" class="btn btn-info"><strong>
+                    {{ book.title }}
+                </strong></button>
+            {% endfor %}
+            {% for book in available_user.ref_rest_books %}
+                <button href="#" class="btn btn-default"><strong>
+                    {{ book.title }}
+                </strong></button>
+            {% endfor %}
+        </li>
+        <li class="list-group-item"> 
+            <strong><font color="#A500CC">徵求的書：</font></strong> 
+            {% for book in available_user.ref_ask_for %}
+                <button href="#" class="btn btn-info"><strong>
+                    {{ book.title }}
+                </strong></button>
+            {% endfor %}
+            {% for book in available_user.ref_ask_for_rest %}
+                <button href="#" class="btn btn-default"><strong>
+                    {{ book.title }}
+                </strong></button>
+            {% endfor %}
+        </li>
+    </ul>
+    </p>
+    {% empty %}
+        <h3 align="center">目前沒有match的使用者或書籍</h3>
+    {% endfor %}
+</p>

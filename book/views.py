@@ -1,11 +1,12 @@
 from django.shortcuts import render, redirect, get_object_or_404
-from django.http import HttpResponse, Http404, HttpResponseForbidden
+from django.http import HttpResponse, Http404, HttpResponseForbidden, JsonResponse
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
 from django.views.decorators.http import require_http_methods
 from django.db.models import Q
 from django.contrib import messages
 from django.db import transaction
+from django.template.loader import render_to_string
 
 from .models import BookItem, Book, ExchangeItem 
 from .models import ExchangeStatus
@@ -431,3 +432,47 @@ def target_confirm_noticed(request, username, is_ok, pk):
         words = ('的交換可能已經被您確認過，請重新整理更新到最新狀態！')
         messages.error(request, words)
     return redirect('post_exchange', username=username)
+
+# function that returns the book number of user<-->user they can exchange.
+def get_overlap_books_from_user(main_user, ref_user):
+    # check
+    if (not isinstance(main_user, User) or not isinstance(ref_user, User)):
+        print('Error type for get_overlap_books_from_user', type(main_user), type(ref_user))
+
+    # main user asked for, and ref user has it
+    main_ask_for = ref_user.book_items.filter(is_valid=True, book__targeted_by=main_user)
+    ref_rest_books = ref_user.book_items.filter(is_valid=True).difference(main_ask_for)
+
+    # ref user asked for, and main user has it
+    ref_ask_for = ref_user.target_books.filter(items__owner=main_user)
+    ref_ask_for_rest = ref_user.target_books.all().difference(ref_ask_for)
+
+    # cover count = main_ask_for.count + ref_ask_for.count
+    cover_count = main_ask_for.count() + ref_ask_for.count()
+
+    # return with dict.
+    book_sets = {'main_ask_for': main_ask_for, 'ref_rest_books': ref_rest_books,
+                 'ref_ask_for': ref_ask_for, 'ref_ask_for_rest': ref_ask_for_rest,
+                 'cover_count': cover_count, 'user': ref_user}
+
+    return book_sets
+
+@login_required
+@require_http_methods(['POST', 'GET'])
+def target_candidate_request(request, pk):
+    main_user = request.user
+    target_book = get_object_or_404(Book, pk=pk)
+    user_with_target_book = [item.owner for item in target_book.items.all()]
+    print(user_with_target_book)
+    # duplicated handle
+    user_with_target_book = list(set(user_with_target_book))
+
+    available_user_list = []
+    for user in user_with_target_book:
+        data = get_overlap_books_from_user(main_user, user)
+        available_user_list.append(data)
+
+    html_data = render_to_string('book_exchange_list_info.html', {'available_user_list': available_user_list},
+                                 request=request)
+
+    return JsonResponse({'html_data': html_data})

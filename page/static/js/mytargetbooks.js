@@ -22,9 +22,17 @@ $(function () {
         $("#modal-book .modal-content").html(html_sting);
     };
 
-    $('.btn-show').click(function () {
+    // ask for target book info
+    $('.show_target_info').click(function () {
         var button = this;
-        $(button).siblings(".card-content").html('<h1>Hello World</h1>');
+        $.ajax({
+            'url': $(button).attr('href'),
+            'type': 'GET'
+        }).done(function (data) {
+            $(button).siblings(".card-content").html(data.html_data);
+        }).fail(function (e) {
+            console.log(e);
+        });
     });
 
     $('.btn-delete').click(function () {

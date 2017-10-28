@@ -42,7 +42,7 @@
         <div class="card-content">
         </div>
         <p class="card-text">{{ book.description }}</p>
-        <button href="#" class="btn btn-primary btn-show">修改</button>
+        <button href="{% url 'target_candidate_request' book.pk %}" class="btn btn-primary btn-show show_target_info">顯示可交換的使用者</button>
         <button href="{% url 'targetbook_delete' book.pk %}" class="btn btn-danger btn-delete">刪除</button>
 
       </div>
