@@ -493,3 +493,45 @@ def soruce_candidate_request(request, pk):
                                  request=request)
 
     return JsonResponse({'html_data': html_data})
+
+@login_required
+def show_user_exchanges(request):
+    user = request.user
+
+    # query set 
+    exchange_list =\
+        user.exchange_source.order_by('-created_at').all()
+    from_other_exchange_list =\
+        user.exchange_target.order_by('-created_at').all()
+    # confirms
+    user_exchanges_confirmed = [exchange for exchange in exchange_list\
+            if exchange.is_source_book_confirm_show() == True]
+    from_other_exchanges_confirmed = [exchange for exchange in from_other_exchange_list\
+            if exchange.is_target_book_confirm_show() == True]
+    # request still waiting.
+    user_exchanges_waiting = [exchange for exchange in exchange_list\
+            if exchange.is_waiting() == True]
+    # request need handle
+    from_other_exchanges_waiting = [exchange for exchange in from_other_exchange_list\
+            if exchange.is_waiting() == True]
+    # reject
+    user_exchanges_rejected = [exchange for exchange in exchange_list\
+            if exchange.is_reject() == True]
+    # target book deleted
+    user_exchanges_book_deleted = [exchange for exchange in exchange_list\
+            if exchange.is_target_book_delete() == True]
+
+    # message
+    confirm_message = ''
+    if (len(user_exchanges_confirmed) == 0 and len(from_other_exchanges_confirmed) == 0):
+        print('???')
+        confirm_message = '沒有任何確認的交換'
+
+    return render(request, 'user_exchanges.html',
+                  {'user_exchanges_confirmed': user_exchanges_confirmed,
+                   'from_other_exchanges_confirmed': from_other_exchanges_confirmed,
+                   'confirm_message': confirm_message,
+                   'user_exchanges_waiting': user_exchanges_waiting,
+                   'from_other_exchanges_waiting': from_other_exchanges_waiting,
+                   'user_exchanges_rejected': user_exchanges_rejected,
+                   'user_exchanges_book_deleted': user_exchanges_book_deleted})

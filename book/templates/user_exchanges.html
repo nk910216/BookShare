@@ -1,0 +1,289 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}mypage{% endblock%}
+
+{% block breadcrumb %}
+<li class="breadcrumb-item"><a href="{% url 'account_mypage' %}">我的主頁</a></li>
+<li class="breadcrumb-item"><a href="{% url 'account_mybooks' %}">我的書本</a></li>
+<li class="breadcrumb-item"><a href="{% url 'account_mytargetbooks' %}">徵求書本</a></li>
+<li class="breadcrumb-item active">我的交換</li>
+{% endblock %}
+
+{% block content %}
+<div id="accordion" role="tablist" aria-multiselectable="true">
+  <div class="card">
+    <div class="card-header" role="tab" id="headingOne">
+      <h5 class="mb-0">
+        <a data-toggle="collapse" data-parent="#accordion" href="#collapseOne" aria-expanded="true" aria-controls="collapseOne">
+          <font color="#33cc00">已經被確定的請求 與 您確定的請求</font>
+        </a>
+      </h5>
+    </div>
+
+    <div id="collapseOne" class="collapse show" role="tabpanel" aria-labelledby="headingOne">
+      <div class="card-block">
+        <!-- accept exchanges -->
+        {% for exchange in user_exchanges_confirmed %}
+        <p>
+        <ul class="list-group" style="padding:15px 20px;">
+            <strong>
+            <li class="list-group-item list-group-item-success">您已經被接受的請求</li>
+            </strong>
+            <li class="list-group-item">
+                您想用 
+                {% for book in exchange.from_item.all %}
+                    <button href="#" class="btn btn-default"><strong>
+                        {{ book.title }}
+                    </strong></button>
+                {% endfor %}
+                <br/>
+                <strong><font color="#A500CC">交換</font>
+                {{ exchange.to_user.username }}的</strong> 
+                {% for book in exchange.to_item.all %}
+                    <button href="#" class="btn btn-default"><strong>
+                        {{ book.title }}
+                    </strong></button>
+                {% endfor %}
+            </li>
+            <li class="list-group-item"> 
+            <button href="#" class="btn btn-primary">已確認完成交換(此訊息不再顯示)</button>
+            <button href="#" class="btn btn-danger">交換失敗，將書本重新加入我的書櫃(此訊息不再顯示)</button>
+            </li>
+        </ul>
+        </p>
+        {% endfor %}
+
+        <!-- accepted exchages -->
+        {% for exchange in from_other_exchanges_confirmed %}
+        <p>
+        <ul class="list-group" style="padding:15px 20px;">
+            <strong>
+            <li class="list-group-item list-group-item-success">您已經接受的請求</li>
+            </strong>
+            <li class="list-group-item">
+                {{ exchange.from_user.username }}想用 
+                {% for book in exchange.from_item.all %}
+                    <button href="#" class="btn btn-default"><strong>
+                        {{ book.title }}
+                    </strong></button>
+                {% endfor %}
+                <br/>
+                <strong><font color="#A500CC">交換</font>
+                您的</strong> 
+                {% for book in exchange.to_item.all %}
+                    <button href="#" class="btn btn-default"><strong>
+                        {{ book.title }}
+                    </strong></button>
+                {% endfor %}
+            </li>
+            <li class="list-group-item"> 
+            <button href="#" class="btn btn-primary">已確認完成交換(此訊息不再顯示)</button>
+            <button href="#" class="btn btn-danger">交換失敗，將書本重新加入我的書櫃(此訊息不再顯示)</button>
+            </li>
+        </ul>
+        </p>
+        {% endfor %}
+
+        <!-- None-->
+        <p>
+            <h3 align="center">{{ confirm_message }}</h3>
+        </p>
+      </div>
+    </div>
+  </div>
+  <div class="card">
+    <div class="card-header" role="tab" id="headingTwo">
+      <h5 class="mb-0">
+        <a class="collapsed" data-toggle="collapse" data-parent="#accordion" href="#collapseTwo" aria-expanded="false" aria-controls="collapseTwo">
+          <font color="#9900cc">等待對方決定的請求</font>
+        </a>
+      </h5>
+    </div>
+    <div id="collapseTwo" class="collapse" role="tabpanel" aria-labelledby="headingTwo">
+      <div class="card-block">
+        <!-- require exchanges -->
+        {% for exchange in user_exchanges_waiting %}
+        <p>
+        <ul class="list-group" style="padding:15px 20px;">
+            <strong>
+            <li class="list-group-item list-group-item-info">
+                已提交給 {{ exchange.to_user.username }} 但尚未接受
+            </li>
+            </strong>
+            <li class="list-group-item">
+                您想用 
+                {% for book in exchange.from_item.all %}
+                    <button href="#" class="btn btn-default"><strong>
+                        {{ book.title }}
+                    </strong></button>
+                {% endfor %}
+                <br/>
+                <strong><font color="#A500CC">交換</font>
+                {{ exchange.to_user.username }}的</strong> 
+                {% for book in exchange.to_item.all %}
+                    <button href="#" class="btn btn-default"><strong>
+                        {{ book.title }}
+                    </strong></button>
+                {% endfor %}
+            </li>
+            <li class="list-group-item"> 
+            <button href="#" class="btn btn-danger">反悔</button>
+            </li>
+        </ul>
+        </p>
+        {% empty %}
+            <p><h3 align="center">沒有等待中的請求</h3></p>
+        {% endfor %}
+      </div>
+    </div>
+  </div>
+  <div class="card">
+    <div class="card-header" role="tab" id="headingThree">
+      <h5 class="mb-0">
+        <a class="collapsed" data-toggle="collapse" data-parent="#accordion" href="#collapseThree" aria-expanded="false" aria-controls="collapseThree">
+          <font color="#6699ff">您尚未處理的請求</font>
+        </a>
+      </h5>
+    </div>
+    <div id="collapseThree" class="collapse" role="tabpanel" aria-labelledby="headingThree">
+      <div class="card-block">
+        <!-- require exchanges -->
+        {% for exchange in from_other_exchanges_waiting %}
+        <p>
+        <ul class="list-group" style="padding:15px 20px;">
+            <strong>
+            <li class="list-group-item list-group-item-info">
+                您尚未處理的請求
+            </li>
+            </strong>
+            <li class="list-group-item">
+                {{ exchange.from_user.username }}想用 
+                {% for book in exchange.from_item.all %}
+                    <button href="#" class="btn btn-default"><strong>
+                        {{ book.title }}
+                    </strong></button>
+                {% endfor %}
+                <br/>
+                <strong><font color="#A500CC">交換</font>
+                您的</strong> 
+                {% for book in exchange.to_item.all %}
+                    <button href="#" class="btn btn-default"><strong>
+                        {{ book.title }}
+                    </strong></button>
+                {% endfor %}
+            </li>
+            <li class="list-group-item"> 
+            <button href="#" class="btn btn-primary">接受</button>
+            <button href="#" class="btn btn-danger">回絕</button>
+            </li>
+        </ul>
+        </p>
+        {% empty %}
+            <p><h3 align="center">沒有未處理的請求</h3></p>
+        {% endfor %}
+      </div>
+    </div>
+  </div>
+
+<!-- 4 -->
+  <div class="card">
+    <div class="card-header" role="tab" id="headingFour">
+      <h5 class="mb-0">
+        <a class="collapsed" data-toggle="collapse" data-parent="#accordion" href="#collapseFour" aria-expanded="false" aria-controls="collapseFour">
+          <font color="#cc3300">被拒絕的請求</font>
+        </a>
+      </h5>
+    </div>
+    <div id="collapseFour" class="collapse" role="tabpanel" aria-labelledby="headingFour">
+      <div class="card-block">
+        <!-- require exchanges -->
+        {% for exchange in user_exchanges_rejected %}
+        <p>
+        <ul class="list-group" style="padding:15px 20px;">
+            <strong>
+            <li class="list-group-item list-group-item-danger">
+                已被 {{ exchange.to_user.username }} 拒絕
+            </li>
+            </strong>
+            <li class="list-group-item">
+                您想用 
+                {% for book in exchange.from_item.all %}
+                    <button href="#" class="btn btn-default"><strong>
+                        {{ book.title }}
+                    </strong></button>
+                {% endfor %}
+                <br/>
+                <strong><font color="#A500CC">交換</font>
+                {{ exchange.to_user.username }} 的</strong> 
+                {% for book in exchange.to_item.all %}
+                    <button href="#" class="btn btn-default"><strong>
+                        {{ book.title }}
+                    </strong></button>
+                {% endfor %}
+            </li>
+            <li class="list-group-item"> 
+            <button href="#" class="btn btn-primary">我知道了，不再顯示</button>
+            </li>
+        </ul>
+        </p>
+        {% empty %}
+            <p><h3 align="center">沒有被拒絕的請求</h3></p>
+        {% endfor %}
+      </div>
+    </div>
+  </div>
+
+<!-- 5 -->
+  <div class="card">
+    <div class="card-header" role="tab" id="headingFive">
+      <h5 class="mb-0">
+        <a class="collapsed" data-toggle="collapse" data-parent="#accordion" href="#collapseFive" aria-expanded="false" aria-controls="collapseFive">
+          <font color="#cc3300">請求的書籍已遭移除</font>
+        </a>
+      </h5>
+    </div>
+    <div id="collapseFive" class="collapse" role="tabpanel" aria-labelledby="headingFive">
+      <div class="card-block">
+        <!-- require exchanges -->
+        {% for exchange in user_exchanges_book_deleted %}
+        <p>
+        <ul class="list-group" style="padding:15px 20px;">
+            <strong>
+            <li class="list-group-item list-group-item-danger">
+                {{ exchange.to_user.username }} 移除了某些書，因此交換取消
+            </li>
+            </strong>
+            <li class="list-group-item">
+                您想用 
+                {% for book in exchange.from_item.all %}
+                    <button href="#" class="btn btn-default"><strong>
+                        {{ book.title }}
+                    </strong></button>
+                {% endfor %}
+                <br/>
+                <strong><font color="#A500CC">交換</font>
+                {{ exchange.to_user.username }} 的</strong> 
+                {% for book in exchange.to_item.all %}
+                    <button href="#" class="btn btn-default"><strong>
+                        {{ book.title }}
+                    </strong></button>
+                {% empty %}
+                    某些書
+                    </strong></button>
+                {% endfor %}
+            </li>
+            <li class="list-group-item"> 
+            <button href="#" class="btn btn-primary">我知道了，不再顯示</button>
+            </li>
+        </ul>
+        </p>
+        {% empty %}
+            <p><h3 align="center">沒有目標書被移除的請求</h3></p>
+        {% endfor %}
+      </div>
+    </div>
+  </div>
+
+</div>
+{% endblock %}

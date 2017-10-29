@@ -5,7 +5,8 @@ from .views import (bookitem_delete,
         regret_exchange, reject_exchange, reject_noticed,
         target_book_deleted_noticed, confirm_exchange,
         source_confirm_noticed, target_confirm_noticed,
-        target_candidate_request, soruce_candidate_request)
+        target_candidate_request, soruce_candidate_request, 
+        show_user_exchanges)
 
 urlpatterns = [
     url(r'^(?P<pk>\d+)/bookitem_detele/$', bookitem_delete, name='bookitem_delete'),
@@ -30,4 +31,6 @@ urlpatterns = [
     #
     url(r'^(?P<pk>\d+)/targetbook_choice/$', target_candidate_request, name='target_candidate_request'),
     url(r'^(?P<pk>\d+)/sourcebook_choice/$', soruce_candidate_request, name='soruce_candidate_request'),
+    #
+    url(r'^myexchanges/$', show_user_exchanges, name='show_user_exchanges'),
 ]
