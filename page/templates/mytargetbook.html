@@ -39,12 +39,11 @@
         <!--Title-->
       
         <!--Text-->
-        <div class="card-content">
-        </div>
         <p class="card-text">{{ book.description }}</p>
         <button href="{% url 'target_candidate_request' book.pk %}" class="btn btn-primary btn-show show_target_info">顯示可交換的使用者</button>
+        <button href="#" class="btn btn-warning hide_target_info" style="display: none">隱藏可交換的使用者</button>
         <button href="{% url 'targetbook_delete' book.pk %}" class="btn btn-danger btn-delete">刪除</button>
-
+        <div class="card-content"></div>
       </div>
     </div>
     <!--/.Card-->
