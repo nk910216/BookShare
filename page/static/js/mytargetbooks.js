@@ -23,7 +23,7 @@ $(function () {
     };
 
     // ask for target book info
-    $('.show_target_info').click(function () {
+    $('.show_source_info').click(function () {
         var button = this;
         $.ajax({
             'url': $(button).attr('href'),

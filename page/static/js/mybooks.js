@@ -22,6 +22,32 @@ $(function () {
         $("#modal-book .modal-content").html(html_sting);
     };
 
+    // ask for source book info
+    $('.show_source_info').click(function () {
+        var button = this;
+        var write_content = $(button).siblings(".card-content");
+
+        if (write_content.text() == '') {
+            $.ajax({
+                'url': $(button).attr('href'),
+                'type': 'GET'
+            }).done(function (data) {
+                $(button).siblings(".card-content").html(data.html_data);
+            }).fail(function (e) {
+                console.log(e);
+            });
+        }
+        write_content.show();
+        $(button).siblings('.hide_source_info').show();
+    });
+
+    $('.hide_source_info').click(function () {
+        var button = this;
+        var write_content = $(button).siblings(".card-content");
+        write_content.hide();
+        $(button).hide();
+    });
+
     $('.btn-delete').click(function () {
         var button = this;
         $.ajax({

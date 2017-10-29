@@ -40,8 +40,10 @@
       
         <!--Text-->
         <p class="card-text">{{ book.description }}</p>
-        <button href="#" class="btn btn-primary">修改</button>
+        <button href="{% url 'soruce_candidate_request' book.pk %}" class="btn btn-primary show_source_info">顯示可交換的使用者</button>
+        <button href="#" class="btn btn-warning hide_source_info" style="display: none">隱藏可交換的使用者</button>
         <button href="{% url 'bookitem_delete' book.pk %}" class="btn btn-danger btn-delete">刪除</button>
+        <div class="card-content"></div>
       </div>
     </div>
     <!--/.Card-->

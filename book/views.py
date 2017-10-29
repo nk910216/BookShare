@@ -476,3 +476,20 @@ def target_candidate_request(request, pk):
                                  request=request)
 
     return JsonResponse({'html_data': html_data})
+
+@login_required
+@require_http_methods(['GET'])
+def soruce_candidate_request(request, pk):
+    main_user = request.user
+    target_book = get_object_or_404(BookItem, pk=pk)
+    user_finding_source_book = target_book.book.targeted_by.all();
+
+    available_user_list = []
+    for user in user_finding_source_book:
+        data = get_overlap_books_from_user(main_user, user)
+        available_user_list.append(data)
+
+    html_data = render_to_string('book_exchange_list_info.html', {'available_user_list': available_user_list},
+                                 request=request)
+
+    return JsonResponse({'html_data': html_data})
