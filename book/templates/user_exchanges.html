@@ -22,11 +22,11 @@
     </div>
 
     <div id="collapseOne" class="collapse show" role="tabpanel" aria-labelledby="headingOne">
-      <div class="card-block">
+      <div class="card-block exchange_confirmed_block">
         <!-- accept exchanges -->
         {% for exchange in user_exchanges_confirmed %}
         <p>
-        <ul class="list-group" style="padding:15px 20px;">
+        <ul class="list-group source_confirm_exchange" style="padding:15px 20px;">
             <strong>
             <li class="list-group-item list-group-item-success">您已經被接受的請求</li>
             </strong>
@@ -47,8 +47,10 @@
                 {% endfor %}
             </li>
             <li class="list-group-item"> 
-            <button href="#" class="btn btn-primary">已確認完成交換(此訊息不再顯示)</button>
-            <button href="#" class="btn btn-danger">交換失敗，將書本重新加入我的書櫃(此訊息不再顯示)</button>
+            <button href="{% url 'source_confirm_noticed' exchange.to_user.username 1 exchange.pk %}" 
+                    class="btn btn-primary exchange_confirm_source_noticed">已確認完成交換(此訊息不再顯示)</button>
+            <button href="{% url 'source_confirm_noticed' exchange.to_user.username 0 exchange.pk %}" 
+                    class="btn btn-danger exchange_confirm_source_noticed">交換失敗，將書本重新加入我的書櫃(此訊息不再顯示)</button>
             </li>
         </ul>
         </p>
@@ -57,7 +59,7 @@
         <!-- accepted exchages -->
         {% for exchange in from_other_exchanges_confirmed %}
         <p>
-        <ul class="list-group" style="padding:15px 20px;">
+        <ul class="list-group target_confirm_exchange" style="padding:15px 20px;">
             <strong>
             <li class="list-group-item list-group-item-success">您已經接受的請求</li>
             </strong>
@@ -78,16 +80,18 @@
                 {% endfor %}
             </li>
             <li class="list-group-item"> 
-            <button href="#" class="btn btn-primary">已確認完成交換(此訊息不再顯示)</button>
-            <button href="#" class="btn btn-danger">交換失敗，將書本重新加入我的書櫃(此訊息不再顯示)</button>
+            <button href="{% url 'target_confirm_noticed' exchange.from_user.username 1 exchange.pk %}"
+                    class="btn btn-primary exchange_confirm_target_noticed">已確認完成交換(此訊息不再顯示)</button>
+            <button href="{% url 'target_confirm_noticed' exchange.from_user.username 0 exchange.pk %}"
+                    class="btn btn-danger exchange_confirm_target_noticed">交換失敗，將書本重新加入我的書櫃(此訊息不再顯示)</button>
             </li>
         </ul>
         </p>
         {% endfor %}
 
-        <!-- None-->
+        <!-- end -->
         <p>
-            <h3 align="center">{{ confirm_message }}</h3>
+            <h3 align="center">沒有其他確認的交換</h3>
         </p>
       </div>
     </div>
@@ -105,7 +109,7 @@
         <!-- require exchanges -->
         {% for exchange in user_exchanges_waiting %}
         <p>
-        <ul class="list-group" style="padding:15px 20px;">
+        <ul class="list-group waiting_exchange" style="padding:15px 20px;">
             <strong>
             <li class="list-group-item list-group-item-info">
                 已提交給 {{ exchange.to_user.username }} 但尚未接受
@@ -128,13 +132,13 @@
                 {% endfor %}
             </li>
             <li class="list-group-item"> 
-            <button href="#" class="btn btn-danger">反悔</button>
+            <button href="{% url 'regret_exchange' exchange.to_user.username exchange.pk %}" 
+                    class="btn btn-danger exchange-regret">反悔</button>
             </li>
         </ul>
         </p>
-        {% empty %}
-            <p><h3 align="center">沒有等待中的請求</h3></p>
         {% endfor %}
+        <p><h3 align="center">沒有其他等待中的請求</h3></p>
       </div>
     </div>
   </div>
@@ -151,7 +155,7 @@
         <!-- require exchanges -->
         {% for exchange in from_other_exchanges_waiting %}
         <p>
-        <ul class="list-group" style="padding:15px 20px;">
+        <ul class="list-group deciding_exchange" style="padding:15px 20px;">
             <strong>
             <li class="list-group-item list-group-item-info">
                 您尚未處理的請求
@@ -174,14 +178,19 @@
                 {% endfor %}
             </li>
             <li class="list-group-item"> 
-            <button href="#" class="btn btn-primary">接受</button>
-            <button href="#" class="btn btn-danger">回絕</button>
+            <button href="{% url 'confirm_exchange' exchange.from_user.username exchange.pk %}" 
+                    class="btn btn-primary exchange-confirm">
+                接受
+            </button>
+            <button href="{% url 'regect_exchange' exchange.from_user.username exchange.pk %}" 
+                    class="btn btn-danger exchange-reject">
+                回絕
+            </button>
             </li>
         </ul>
         </p>
-        {% empty %}
-            <p><h3 align="center">沒有未處理的請求</h3></p>
         {% endfor %}
+        <p><h3 align="center">沒有其他未處理的請求</h3></p>
       </div>
     </div>
   </div>
@@ -200,7 +209,7 @@
         <!-- require exchanges -->
         {% for exchange in user_exchanges_rejected %}
         <p>
-        <ul class="list-group" style="padding:15px 20px;">
+        <ul class="list-group rejected_exchange" style="padding:15px 20px;">
             <strong>
             <li class="list-group-item list-group-item-danger">
                 已被 {{ exchange.to_user.username }} 拒絕
@@ -223,13 +232,15 @@
                 {% endfor %}
             </li>
             <li class="list-group-item"> 
-            <button href="#" class="btn btn-primary">我知道了，不再顯示</button>
+            <button href="{% url 'reject_noticed' exchange.to_user.username exchange.pk %}" 
+                    class="btn btn-primary exchange-reject-noticed">
+                我知道了，不再顯示
+            </button>
             </li>
         </ul>
         </p>
-        {% empty %}
-            <p><h3 align="center">沒有被拒絕的請求</h3></p>
         {% endfor %}
+        <p><h3 align="center">沒有其他被拒絕的請求</h3></p>
       </div>
     </div>
   </div>
@@ -248,7 +259,7 @@
         <!-- require exchanges -->
         {% for exchange in user_exchanges_book_deleted %}
         <p>
-        <ul class="list-group" style="padding:15px 20px;">
+        <ul class="list-group target_delete_noticed" style="padding:15px 20px;">
             <strong>
             <li class="list-group-item list-group-item-danger">
                 {{ exchange.to_user.username }} 移除了某些書，因此交換取消
@@ -274,16 +285,29 @@
                 {% endfor %}
             </li>
             <li class="list-group-item"> 
-            <button href="#" class="btn btn-primary">我知道了，不再顯示</button>
+            <button href="{% url 'targetbook_delete_noticed' exchange.to_user.username exchange.pk %}" 
+                    class="btn btn-primary exchange-book-deleted">我知道了，不再顯示</button>
             </li>
         </ul>
         </p>
-        {% empty %}
-            <p><h3 align="center">沒有目標書被移除的請求</h3></p>
         {% endfor %}
+        <p><h3 align="center">沒有其他目標書被移除的請求</h3></p>
       </div>
     </div>
   </div>
 
 </div>
+
+<!-- THE MODAL WE WILL BE USING -->
+  <div class="modal fade" id="modal-exchange">
+    <div class="modal-dialog">
+      <div class="modal-content">
+      </div>
+    </div>
+  </div>
+
+{% endblock %}
+
+{% block javascript %}
+  <script src="{% static 'js/user_exchanges.js' %}"></script>
 {% endblock %}

@@ -138,12 +138,18 @@ def regret_exchange(request, username, pk):
     to_user = get_object_or_404(User, username=username)
     exchange = get_object_or_404(ExchangeItem, pk=pk)   
 
+    using_ajax = request.is_ajax()
+
     if from_user == to_user:
+        if using_ajax:
+            return JsonResponse({'message': '沒有這個交換', 'is_valid': False})
         return redirect('account_mypage')
 
     # if the exchange do not match the from/to
     if exchange.from_user != from_user or exchange.to_user != to_user:
         print('can not regret')
+        if using_ajax:
+            return JsonResponse({'message': '沒有這個交換', 'is_valid': False})
         return redirect('post_exchange', username=username)
 
     # messages
@@ -157,10 +163,16 @@ def regret_exchange(request, username, pk):
     result = exchange.status_change_exchange_regret(pk)
     if result:
         words += (' 反悔成功!')
-        messages.success(request, words)
+        if not using_ajax:
+            messages.success(request, words)
     else:
         words += (' 反悔失敗~~~')
-        messages.error(request, words)
+        if not using_ajax:
+            messages.error(request, words)
+
+    # ajax
+    if using_ajax:
+        return JsonResponse({'message': words, 'is_valid': result})
 
     return redirect('post_exchange', username=username)
 
@@ -171,12 +183,18 @@ def reject_exchange(request, username, pk):
     from_user = get_object_or_404(User, username=username)
     exchange = get_object_or_404(ExchangeItem, pk=pk)
 
+    using_ajax = request.is_ajax()
+
     if from_user == to_user:
+        if using_ajax:
+            return JsonResponse({'message': '沒有這個交換', 'is_valid': False})
         return redirect('account_mypage')
 
     # if the exchange do not match the from/to
     if exchange.from_user != from_user or exchange.to_user != to_user:
         print('can not reject, the user is not correct')
+        if using_ajax:
+            return JsonResponse({'message': '沒有這個交換', 'is_valid': False})
         return redirect('post_exchange', username=username)
 
     # messages
@@ -190,10 +208,17 @@ def reject_exchange(request, username, pk):
     result = exchange.status_change_exchange_reject(pk)
     if result:
         words += (' 已經被您拒絕!')
-        messages.success(request, words)
+        if not using_ajax:
+            messages.success(request, words)
     else:
         words += (' 拒絕失敗~~~')
-        messages.error(request, words)
+        if not using_ajax:
+            messages.error(request, words)
+
+    # ajax
+    if using_ajax:
+        return JsonResponse({'message': words, 'is_valid': result})
+
     return redirect('post_exchange', username=username)
 
 @login_required
@@ -203,12 +228,18 @@ def reject_noticed(request, username, pk):
     to_user = get_object_or_404(User, username=username)
     exchange = get_object_or_404(ExchangeItem, pk=pk)
 
+    using_ajax = request.is_ajax()
+
     if from_user == to_user:
+        if using_ajax:
+            return JsonResponse({'message': '沒有這個交換', 'is_valid': False})
         return redirect('account_mypage')
 
     # if the exchange do not match the from/to
     if exchange.from_user != from_user or exchange.to_user != to_user:
         print('can not confirm rejection, the user is not correct')
+        if using_ajax:
+            return JsonResponse({'message': '沒有這個交換', 'is_valid': False})
         return redirect('post_exchange', username=username)
 
     # messages
@@ -222,10 +253,17 @@ def reject_noticed(request, username, pk):
     result = exchange.status_change_reject_noticed(pk)
     if result:
         words += (' 被拒絕的通知已被您確認!')
-        messages.success(request, words)
+        if not using_ajax:
+            messages.success(request, words)
     else:
         words = ('操作失敗，無法確認被拒絕通知')
-        messages.error(request, words)
+        if not using_ajax:
+            messages.error(request, words)
+
+    # ajax
+    if using_ajax:
+        return JsonResponse({'message': words, 'is_valid': result})
+
     return redirect('post_exchange', username=username)
 
 @login_required
@@ -235,12 +273,18 @@ def target_book_deleted_noticed(request, username, pk):
     to_user = get_object_or_404(User, username=username)
     exchange = get_object_or_404(ExchangeItem, pk=pk)
 
+    using_ajax = request.is_ajax()
+
     if from_user == to_user:
+        if using_ajax:
+            return JsonResponse({'message': '沒有這個交換', 'is_valid': False})
         return redirect('account_mypage')
 
     # if the exchange do not match the from/to
     if exchange.from_user != from_user or exchange.to_user != to_user:
         print('can not confirm book deletion, the user is not correct')
+        if using_ajax:
+            return JsonResponse({'message': '沒有這個交換', 'is_valid': False})
         return redirect('post_exchange', username=username)
 
     # messages
@@ -254,10 +298,17 @@ def target_book_deleted_noticed(request, username, pk):
     result = exchange.status_change_target_book_deleted_noticed(pk)
     if result:
         words += (' 中有些書被刪除，因此交換取消的通知已被您確認!')
-        messages.success(request, words)
+        if not using_ajax:
+            messages.success(request, words)
     else:
         words = ('操作失敗，無法確認因書籍刪除而取消交換的通知')
-        messages.error(request, words)
+        if not using_ajax:
+            messages.error(request, words)
+
+    # ajax
+    if using_ajax:
+        return JsonResponse({'message': words, 'is_valid': result})
+
     return redirect('post_exchange', username=username)
 
 @login_required
@@ -267,12 +318,18 @@ def confirm_exchange(request, username, pk):
     from_user = get_object_or_404(User, username=username)
     exchange = get_object_or_404(ExchangeItem, pk=pk)   
 
+    using_ajax = request.is_ajax()
+
     if from_user == to_user:
+        if using_ajax:
+            return JsonResponse({'message': '沒有這個交換', 'is_valid': False})
         return redirect('account_mypage')
 
     # if the exchange do not match the from/to
     if exchange.from_user != from_user or exchange.to_user != to_user:
         print('can not regret')
+        if using_ajax:
+            return JsonResponse({'message': '沒有這個交換', 'is_valid': False})
         return redirect('post_exchange', username=username)
 
     # messages
@@ -290,7 +347,10 @@ def confirm_exchange(request, username, pk):
         for book_item in book_item_list:
             if book_item.is_valid == False:
                 # can not confirm send message and return.
-                messages.error(request, '因為有些書已經被其他交換確認，因此您無法確認這個交換，請重新整理取得最新資訊')
+                error_message = '因為有些書已經被其他交換確認，因此您無法確認這個交換，請重新整理取得最新資訊'
+                if using_ajax:
+                    return JsonResponse({'message': error_message, 'is_valid': False})
+                messages.error(request, error_message)
                 return redirect('post_exchange', username=username)
         # check and change state of the exchange
         result = exchange.status_change_exchange_confirm(pk)
@@ -299,6 +359,8 @@ def confirm_exchange(request, username, pk):
             words += (' 的請求已被您確認! 您的相關物品已被鎖定而無法進行其他交換')
         else:
             words = ('操作失敗，無法確認被拒絕通知')
+            if using_ajax:
+                    return JsonResponse({'message': words, 'is_valid': False})
             messages.error(request, words)
             return redirect('post_exchange', username=username)
 
@@ -325,6 +387,12 @@ def confirm_exchange(request, username, pk):
         for book_exchange in book_item.exchange_target.all():
             book_exchange.status_change_exchange_reject(book_exchange.pk)
 
+    # ajax
+    if using_ajax:
+        html_data = render_to_string('confirm_exchange.html', {'exchange': exchange},
+                                    request=request)
+        return JsonResponse({'message': words, 'is_valid': result, 'html_data': html_data})
+
     messages.success(request, words)
     return redirect('post_exchange', username=username)
 
@@ -339,12 +407,18 @@ def source_confirm_noticed(request, username, is_ok, pk):
         raise Http404
     is_ok = int(is_ok)
 
+    using_ajax = request.is_ajax()
+
     if from_user == to_user:
+        if using_ajax:
+            return JsonResponse({'message': '沒有這個交換', 'is_valid': False})
         return redirect('account_mypage')
 
     # if the exchange do not match the from/to
     if exchange.from_user != from_user or exchange.to_user != to_user:
         print('can not notic the confirm, the user is not matched')
+        if using_ajax:
+            return JsonResponse({'message': '沒有這個交換', 'is_valid': False})
         return redirect('post_exchange', username=username)
 
     # messages
@@ -374,10 +448,19 @@ def source_confirm_noticed(request, username, is_ok, pk):
             words += (' 已被您確認交換完成，感謝您的使用！')
         else:
             words += (' 已被您認定為交換失敗，已經將您的書重新加入您的書櫃！')
-        messages.success(request, words)
+        
+        if not using_ajax:
+            messages.success(request, words)
     else:
         words = ('的交換可能已經被您確認過，請重新整理更新到最新狀態！')
-        messages.error(request, words)
+        
+        if not using_ajax:
+            messages.error(request, words)
+
+    # ajax
+    if using_ajax:
+        return JsonResponse({'message': words, 'is_valid': result})
+
     return redirect('post_exchange', username=username)
 
 @login_required
@@ -392,12 +475,18 @@ def target_confirm_noticed(request, username, is_ok, pk):
         raise Http404
     is_ok = int(is_ok)
 
+    using_ajax = request.is_ajax()
+
     if from_user == to_user:
+        if using_ajax:
+            return JsonResponse({'message': '沒有這個交換', 'is_valid': False})
         return redirect('account_mypage')
 
     # if the exchange do not match the from/to
     if exchange.from_user != from_user or exchange.to_user != to_user:
         print('can not notic the confirm, the user is not matched')
+        if using_ajax:
+            return JsonResponse({'message': '沒有這個交換', 'is_valid': False})
         return redirect('post_exchange', username=username)
 
     # messages
@@ -427,10 +516,19 @@ def target_confirm_noticed(request, username, is_ok, pk):
             words += (' 已被您確認交換完成，感謝您的使用！')
         else:
             words += (' 已被您認定為交換失敗，已經將您的書重新加入您的書櫃！')
-        messages.success(request, words)
+        
+        if not using_ajax:
+            messages.success(request, words)
     else:
         words = ('的交換可能已經被您確認過，請重新整理更新到最新狀態！')
-        messages.error(request, words)
+
+        if not using_ajax:
+            messages.error(request, words)
+
+    # ajax
+    if using_ajax:
+        return JsonResponse({'message': words, 'is_valid': result})
+
     return redirect('post_exchange', username=username)
 
 # function that returns the book number of user<-->user they can exchange.
@@ -521,16 +619,9 @@ def show_user_exchanges(request):
     user_exchanges_book_deleted = [exchange for exchange in exchange_list\
             if exchange.is_target_book_delete() == True]
 
-    # message
-    confirm_message = ''
-    if (len(user_exchanges_confirmed) == 0 and len(from_other_exchanges_confirmed) == 0):
-        print('???')
-        confirm_message = '沒有任何確認的交換'
-
     return render(request, 'user_exchanges.html',
                   {'user_exchanges_confirmed': user_exchanges_confirmed,
                    'from_other_exchanges_confirmed': from_other_exchanges_confirmed,
-                   'confirm_message': confirm_message,
                    'user_exchanges_waiting': user_exchanges_waiting,
                    'from_other_exchanges_waiting': from_other_exchanges_waiting,
                    'user_exchanges_rejected': user_exchanges_rejected,

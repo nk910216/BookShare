@@ -1,0 +1,33 @@
+<p>
+    <ul class="list-group target_confirm_exchange" style="padding:15px 20px;">
+        <strong>
+        <li class="list-group-item list-group-item-success">您已經接受的請求</li>
+        </strong>
+        <li class="list-group-item">
+            {{ exchange.from_user.username }}想用 
+            {% for book in exchange.from_item.all %}
+                <button href="#" class="btn btn-default"><strong>
+                    {{ book.title }}
+                </strong></button>
+            {% endfor %}
+            <br/>
+            <strong><font color="#A500CC">交換</font>
+            您的</strong> 
+            {% for book in exchange.to_item.all %}
+                <button href="#" class="btn btn-default"><strong>
+                    {{ book.title }}
+                </strong></button>
+            {% endfor %}
+        </li>
+        <li class="list-group-item"> 
+        <button href="{% url 'target_confirm_noticed' exchange.from_user.username 1 exchange.pk %}"
+                class="btn btn-primary exchange_confirm_target_noticed">
+                已確認完成交換(此訊息不再顯示)
+        </button>
+        <button href="{% url 'target_confirm_noticed' exchange.from_user.username 0 exchange.pk %}"
+                class="btn btn-danger exchange_confirm_target_noticed">
+                交換失敗，將書本重新加入我的書櫃(此訊息不再顯示)
+        </button>
+        </li>
+    </ul>
+</p>
