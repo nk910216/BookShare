@@ -11,7 +11,7 @@
 {% endblock %}
 
 {% block content %}
-<h1 align="center">與 {{ to_user.username }} 的交換</h1>
+<h1 align="center">向 {{ to_user.username }} 提出交換</h1>
 
 {% if can_post%}
 <div class="card mb-4">
@@ -19,7 +19,7 @@
     <div class="card-body p-3">
         <form method="post" class="mb-4">
             {% csrf_token %}
-            {{ form.as_p }}
+            {{ form }}
             <button type="submit" class="btn btn-success">提出交換</button>
         </form>
     </div>
@@ -32,5 +32,5 @@
 {% endif %}
 
 <br/>
-<center><a href="{% url 'post_exchange' to_user.username %}" class="btn btn-primary">返回</a></center>
+<center><a href="{% url 'post_exchange' to_user.username %}" class="btn btn-primary">回去查看與{{ to_user.username }}的交換</a></center>
 {% endblock %}
