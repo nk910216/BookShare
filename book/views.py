@@ -644,9 +644,9 @@ def search_books(request):
     if query_text is '':
         return JsonResponse(data)
     
-    book_items = BookItem.objects.filter((Q(title__contains=query_text) | 
-            Q(authors__contains=query_text) | 
-            Q(owner__username__contains=query_text)) &
+    book_items = BookItem.objects.filter((Q(title__icontains=query_text) | 
+            Q(authors__icontains=query_text) | 
+            Q(owner__username__icontains=query_text)) &
             Q(is_valid=True)).order_by('-created_at')
 
     html_data = render_to_string('search_books.html', {'book_items': book_items},
