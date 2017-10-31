@@ -1,11 +1,35 @@
 {% extends 'base.html' %}
+{% load static %}
 
 {% block title %}Books{% endblock %}
 
 {% block breadcrumb %}
-<li class="breadcrumb-item active">Books</li>
+<li class="breadcrumb-item"><a href="{% url 'account_mypage' %}">我的主頁</a></li>
+<li class="breadcrumb-item"><a href="{% url 'account_mybooks' %}">我的書本</a></li>
+<li class="breadcrumb-item"><a href="{% url 'account_mytargetbooks' %}">徵求書本</a></li>
+<li class="breadcrumb-item"><a href="{% url 'show_user_exchanges' %}">我的交換</a></li>
 {% endblock %}
 
 {% block content %}
-<b>Hello!</b>
+<div class="row">
+  <div class="col">
+    <form class="search-form" action="{% url 'search_books' %}">
+        <div class="input-group">
+            {% csrf_token %}
+            {{ search_form }}
+            <span class="input-group-btn">
+            <button class="btn btn-default" type="submit">Go!</button>
+            </span>
+        </div><!-- /input-group -->
+    </form>
+  </div><!-- /.col-lg-6 -->
+</div><!-- /.row -->
+
+<p class='search-result'>
+</p>
+{% endblock %}
+
+
+{% block javascript %}
+    <script src="{% static 'js/home.js' %}"></script>
 {% endblock %}

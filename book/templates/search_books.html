@@ -1,0 +1,28 @@
+<p>
+<table class="table table-striped table-bordered table-responsive">
+  <thead>
+    <tr class="table-inverse">
+      <th><strong>前往交換</strong></th>
+      <th><strong>書名</strong></th>
+      <th><strong>作者</strong></th>
+      <th><strong>描述</strong></th>
+      <th><strong>User</strong></th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for items in book_items%}
+      <tr>
+        <th>
+          <a href="{% url 'post_exchange_form' items.owner.username %}" class="btn btn-info">擁有</a>
+        </th>
+        <th>{{ items.title }}</th>
+        <th>{{ items.authors|truncatechars:30}}</th>
+        <th>{{ items.description|truncatechars:50}}</th>
+        <th>
+          {{ items.owner.username }}
+        </th>
+      </tr>
+    {% endfor %}
+  </tbody>
+</table>
+</p>

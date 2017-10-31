@@ -8,6 +8,8 @@ from django.contrib import messages
 from django.db import transaction
 from django.template.loader import render_to_string
 
+from page.forms import SearchForm
+
 from .models import BookItem, Book, ExchangeItem 
 from .models import ExchangeStatus
 from .models import can_user_add_exchange, get_exchange_max_amount
@@ -626,3 +628,29 @@ def show_user_exchanges(request):
                    'from_other_exchanges_waiting': from_other_exchanges_waiting,
                    'user_exchanges_rejected': user_exchanges_rejected,
                    'user_exchanges_book_deleted': user_exchanges_book_deleted})
+
+@require_http_methods(['GET'])
+def search_books(request):
+    data = dict()
+    query_text = ''
+
+    form = SearchForm(request.GET)
+    data['is_valid'] = False
+    data['html_data'] = ''
+    if form.is_valid():
+        info = form.cleaned_data
+        query_text = info.get('query_text','')
+
+    if query_text is '':
+        return JsonResponse(data)
+    
+    book_items = BookItem.objects.filter((Q(title__contains=query_text) | 
+            Q(authors__contains=query_text) | 
+            Q(owner__username__contains=query_text)) &
+            Q(is_valid=True)).order_by('-created_at')
+
+    html_data = render_to_string('search_books.html', {'book_items': book_items},
+                                 request=request)
+    data['is_valid'] = True
+    data['html_data'] = html_data
+    return JsonResponse(data)
