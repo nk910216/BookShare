@@ -81,3 +81,32 @@ class Profile(models.Model):
 
     def __str__(self):
         return self.user.username + "'s profile"
+
+    def need_update_info(self):
+        cls = self.__class__
+        
+        if self.exchange_method == cls.EXCHANGE_METHOD_NONE or\
+            len(self.contact_description) - self.contact_description.count(' ') == 0:
+            return True
+
+        if (self.exchange_method == cls.EXCHANGE_METHOD_FACE or self.exchange_method == cls.EXCHANGE_METHOD_BOTH) and \
+            (self.city == cls.CITY_NONE or \
+            len(self.area_description) - self.area_description.count(' ') == 0):
+            return True
+        return False
+
+    def need_update_info_message(self):
+        cls = self.__class__
+        
+        word = ''
+        if self.exchange_method == cls.EXCHANGE_METHOD_NONE:
+            word +='交換方式不明 '
+
+        if len(self.contact_description) - self.contact_description.count(' ') == 0:
+            word += '聯絡方式不明 '
+
+        if (self.exchange_method == cls.EXCHANGE_METHOD_FACE or self.exchange_method == cls.EXCHANGE_METHOD_BOTH) and \
+            (self.city == cls.CITY_NONE or \
+            len(self.area_description) - self.area_description.count(' ') == 0):
+            word += '面交詳情不明 '
+        return word

@@ -48,6 +48,16 @@
             {% block breadcrumb %}
             {% endblock %}
           </ol>
+
+          {% if request.user.is_authenticated and request.user.profile.need_update_info %}
+            <div class="alert alert-danger alert-dismissible" role="alert">
+              <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+                </button>
+                <center>{{ request.user.profile.need_update_info_message}}！請前往 <a href="{% url 'account_mypage' %}">我的主頁</a> 更新交換訊息</center>
+            </div>
+          {% endif %}
+
           {% block content %}
           {% endblock %}
       </div>
