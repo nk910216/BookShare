@@ -75,7 +75,6 @@ def mypage(request):
             user.profile.contact_description = info.get('contact_description', user.profile.contact_description)
             user.save()
     else:
-        print(user.profile.area_description)
         form = InfoUpdateForm(initial = {
                 'first_name': user.first_name,
                 'last_name': user.last_name,
