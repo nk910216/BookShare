@@ -28,7 +28,9 @@
         <p>
         <ul class="list-group source_confirm_exchange" style="padding:15px 20px;">
             <strong>
-            <li class="list-group-item list-group-item-success">您已經被接受的請求</li>
+            <li class="list-group-item list-group-item-success">
+                您已經被接受的請求 ( {{ exchange.to_user.profile.get_name_with_exchange_face }} )
+            </li>
             </strong>
             <li class="list-group-item">
                 您想用 
@@ -61,7 +63,9 @@
         <p>
         <ul class="list-group target_confirm_exchange" style="padding:15px 20px;">
             <strong>
-            <li class="list-group-item list-group-item-success">您已經接受的請求</li>
+            <li class="list-group-item list-group-item-success">
+                您已經接受的請求 ( {{ exchange.from_user.profile.get_name_with_exchange_face}} )
+            </li>
             </strong>
             <li class="list-group-item">
                 {{ exchange.from_user.username }}想用 
@@ -112,7 +116,7 @@
         <ul class="list-group waiting_exchange" style="padding:15px 20px;">
             <strong>
             <li class="list-group-item list-group-item-info">
-                已提交給 {{ exchange.to_user.username }} 但尚未接受
+                已提交給 {{ exchange.to_user.profile.get_name_with_exchange_face }} 但尚未接受
             </li>
             </strong>
             <li class="list-group-item">
@@ -158,7 +162,7 @@
         <ul class="list-group deciding_exchange" style="padding:15px 20px;">
             <strong>
             <li class="list-group-item list-group-item-info">
-                您尚未處理的請求
+                您尚未處理的請求 ( {{ exchange.from_user.profile.get_name_with_exchange_face }} )
             </li>
             </strong>
             <li class="list-group-item">
@@ -212,7 +216,7 @@
         <ul class="list-group rejected_exchange" style="padding:15px 20px;">
             <strong>
             <li class="list-group-item list-group-item-danger">
-                已被 {{ exchange.to_user.username }} 拒絕
+                已被 {{ exchange.to_user.profile.get_name_with_exchange_face }} 拒絕
             </li>
             </strong>
             <li class="list-group-item">
@@ -262,7 +266,7 @@
         <ul class="list-group target_delete_noticed" style="padding:15px 20px;">
             <strong>
             <li class="list-group-item list-group-item-danger">
-                {{ exchange.to_user.username }} 移除了某些書，因此交換取消
+                {{ exchange.to_user.profile.get_name_with_exchange_face }} 移除了某些書，因此交換取消
             </li>
             </strong>
             <li class="list-group-item">

@@ -1,7 +1,9 @@
 <p>
     <ul class="list-group target_confirm_exchange" style="padding:15px 20px;">
         <strong>
-        <li class="list-group-item list-group-item-success">您已經接受的請求</li>
+        <li class="list-group-item list-group-item-success">
+            您已經接受的請求 ( {{ exchange.from_user.profile.get_name_with_exchange_face}} )
+        </li>
         </strong>
         <li class="list-group-item">
             {{ exchange.from_user.username }}想用 
