@@ -5,6 +5,7 @@ from django.contrib.auth.decorators import login_required
 from book.forms import NewBookItemForm, NewTartgetBookForm
 
 from .forms import SignUpForm, InfoUpdateForm
+from .models import Profile
 # Create your views here.
 def signup(request):
     if request.method == 'POST':
@@ -68,12 +69,21 @@ def mypage(request):
             user.first_name = info.get('first_name', '')
             user.last_name = info.get('last_name', '')
             user.email = info.get('email', '')
+            user.profile.city = info.get('city', user.profile.city)
+            user.profile.exchange_method = info.get('exchange_method', user.profile.exchange_method)
+            user.profile.area_description = info.get('area_description', user.profile.area_description)
+            user.profile.contact_description = info.get('contact_description', user.profile.contact_description)
             user.save()
     else:
+        print(user.profile.area_description)
         form = InfoUpdateForm(initial = {
-            'first_name': user.first_name,
-            'last_name': user.last_name,
-            'email': user.email
+                'first_name': user.first_name,
+                'last_name': user.last_name,
+                'email': user.email,
+                'city': user.profile.city,
+                'exchange_method': user.profile.exchange_method,
+                'area_description': user.profile.area_description,
+                'contact_description': user.profile.contact_description,
             })
     return render(request, 'mypage.html', {'form': form,})
     
