@@ -119,6 +119,25 @@ class Profile(models.Model):
             return True
         return False
 
+    def exchange_mail(self):
+        cls = self.__class__
+
+        if self.exchange_method == cls.EXCHANGE_METHOD_MAIL or self.exchange_method == cls.EXCHANGE_METHOD_BOTH:
+            return True
+        return False
+
+    def get_contact_description(self):
+        if len(self.contact_description) - self.contact_description.count(' ') == 0:
+            return '暫時沒有提供聯絡方式'
+        return self.contact_description
+
+    def exchange_method_undecided(self):
+        cls = self.__class__
+
+        if self.exchange_method == cls.EXCHANGE_METHOD_NONE:
+            return True
+        return False
+
     def get_city(self):
         cls = self.__class__
 
@@ -129,4 +148,8 @@ class Profile(models.Model):
     def get_name_with_exchange_face(self):
 
         html_data = render_to_string('user_exchange_method_info.html', {'profile': self})
+        return html_data
+
+    def get_contact_info(self):
+        html_data = render_to_string('user_contact_info.html', {'profile': self})
         return html_data

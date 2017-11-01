@@ -1,0 +1,39 @@
+<!-- Button trigger modal -->
+<button type="button" class="btn btn-success" data-toggle="modal" data-target="#exampleModalLong">
+  顯示聯絡方式
+</button>
+
+<!-- Modal -->
+<div class="modal fade" id="exampleModalLong" tabindex="-1" role="dialog" aria-labelledby="exampleModalLongTitle" aria-hidden="true">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="exampleModalLongTitle">
+            {% if profile.exchange_mail %}
+                <span class="badge badge-pill badge-success">郵寄</span>
+            {% endif %}
+            {% if profile.exchange_face %}
+                <span class="badge badge-pill badge-primary">{{ profile.get_city }}</span> 
+                {{ profile.area_description }}
+            {% endif %}
+            {% if profile.exchange_method_undecided %}
+                <span class="badge badge-pill badge-danger">郵寄</span>
+            {% endif %}
+        </h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <span style="color:black;">
+        <p>
+            {{ profile.get_contact_description }}
+        </p>
+        </span>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-dismiss="modal">關閉</button>
+      </div>
+    </div>
+  </div>
+</div>

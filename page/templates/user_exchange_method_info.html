@@ -1,7 +1,10 @@
 {{ profile.user.username }}
 {% if profile.exchange_face %}
-    <span class="badge badge-pill badge-primary">
-{% else %}
-    <span class="badge badge-pill badge-danger">
+    <span class="badge badge-pill badge-primary">{{ profile.get_city }}</span>
 {% endif %}
-{{ profile.get_city }}</span>
+{% if profile.exchange_mail %}
+    <span class="badge badge-pill badge-success">郵寄</span>
+{% endif %}
+{% if profile.exchange_method_undecided %}
+    <span class="badge badge-pill badge-danger">郵寄</span>
+{% endif %}
