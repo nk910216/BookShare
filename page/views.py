@@ -17,7 +17,6 @@ def pagehome(request):
     for item in book_items:
         username = item.owner.username
         count = user_items_count[username]
-        print(item)
         if count < ITEM_COUNT_PER_USER:
             item_list.append(item)
             user_items_count[username] += 1
