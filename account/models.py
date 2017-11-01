@@ -41,7 +41,7 @@ class Profile(models.Model):
     CITY_PEH = 'PEH'
      
     CITY_CHOICES = (
-        (CITY_NONE, '請選擇面交城市'),
+        (CITY_NONE, '無'),
         (CITY_KLU, '基隆市'),
         (CITY_TPE, '台北市'),
         (CITY_TPH, '新北市'),
@@ -110,3 +110,17 @@ class Profile(models.Model):
             len(self.area_description) - self.area_description.count(' ') == 0):
             word += '面交詳情不明 '
         return word
+
+    def exchange_face(self):
+        cls = self.__class__
+
+        if self.exchange_method == cls.EXCHANGE_METHOD_FACE or self.exchange_method == cls.EXCHANGE_METHOD_BOTH:
+            return True
+        return False
+
+    def get_city(self):
+        cls = self.__class__
+
+        if self.exchange_method == cls.EXCHANGE_METHOD_FACE or self.exchange_method == cls.EXCHANGE_METHOD_BOTH:
+            return dict(cls.CITY_CHOICES).get(self.city, '')
+        return '不面交'
