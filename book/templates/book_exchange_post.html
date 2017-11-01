@@ -17,7 +17,9 @@
 {% endblock %}
 
 {% block content %}
-<h1 align="center">與 {{ to_user.username }} 的交換</h1>
+<h1 align="center">
+          與 {{ to_user.profile.get_name_with_exchange_face }} 的交換
+</h1>
 <br/>
 <center><a href="{% url 'post_exchange_form' to_user.username %}" class="btn btn-primary">提出交換</a></center>
 <br/>

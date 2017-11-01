@@ -21,13 +21,7 @@
         <th>{{ items.authors|truncatechars:30}}</th>
         <th>{{ items.description|truncatechars:50}}</th>
         <th>
-          <h6>{{ items.owner.username }}
-          {% if items.owner.profile.exchange_face %}
-            <span class="badge badge-pill badge-primary">
-          {% else %}
-            <span class="badge badge-pill badge-danger">
-          {% endif %}
-          {{ items.owner.profile.get_city }}</span></h6>
+          <h6>{{ items.owner.profile.get_name_with_exchange_face }}</h6>
         </th>
       </tr>
     {% endfor %}

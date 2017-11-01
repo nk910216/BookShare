@@ -5,7 +5,8 @@
     <ul class="list-group">
         <li class="list-group-item list-group-item-success">
             <strong>
-                使用者 {{ available_user.user.username }} 所徵求/擁有的書
+                使用者 {{ available_user.user.profile.get_name_with_exchange_face }} 
+                所徵求/擁有的書
                 <a href="{% url 'post_exchange' available_user.user.username %}"> 前往交換 </a>
             </strong>
         </li>

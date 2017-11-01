@@ -1,0 +1,7 @@
+{{ profile.user.username }}
+{% if profile.exchange_face %}
+    <span class="badge badge-pill badge-primary">
+{% else %}
+    <span class="badge badge-pill badge-danger">
+{% endif %}
+{{ profile.get_city }}</span>
