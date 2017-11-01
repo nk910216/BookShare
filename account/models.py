@@ -66,7 +66,7 @@ class Profile(models.Model):
         (CITY_PEH, '澎湖縣'),
     )
 
-    user = models.OneToOneField(User, related_name='profile',on_delete=models.CASCADE, null=True)
+    user = models.OneToOneField(User, related_name='profile',on_delete=models.CASCADE)
     exchange_method = models.CharField(choices=EXCHANGE_MEOTHOD_COHICES, 
         default=EXCHANGE_METHOD_NONE, max_length=10)
     city = models.CharField(choices=CITY_CHOICES, default=CITY_NONE, max_length=5)
